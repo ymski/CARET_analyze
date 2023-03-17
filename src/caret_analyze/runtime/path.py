@@ -103,12 +103,13 @@ class RecordsMerged:
     def __init__(
         self,
         merge_targets: List[Union[NodePath, Communication]],
-        enable_beginning: bool = False,
-        enable_end: bool = False
+        # enable_beginning: bool = False,
+        # enable_end: bool = False
     ) -> None:
         if len(merge_targets) == 0:
             raise InvalidArgumentError('There are no records to be merged.')
-        self._data = self._merge_records(merge_targets, enable_beginning, enable_end)
+        # self._data = self._merge_records(merge_targets, enable_beginning, enable_end)
+        self._data = self._merge_records(merge_targets)
 
     @property
     def data(self) -> RecordsInterface:
@@ -116,20 +117,23 @@ class RecordsMerged:
 
     @staticmethod
     def _merge_records(
-        targets: List[Union[NodePath, Communication]],
-        enable_beginning: bool = False,
-        enable_end: bool = False
+        targets: List[Union[NodePath, Communication]]
     ) -> RecordsInterface:
         logger.info('Started merging path records.')
 
         column_merger = ColumnMerger()
-        if enable_beginning and isinstance(targets[0], NodePath):
-            first_element = targets[0].to_path_beginning_records()
-        else:
-            if len(targets[0].to_records().data) == 0:
-                targets = targets[1:]
+        # if enable_beginning and isinstance(targets[0], NodePath):
+        #     first_element = targets[0].to_path_beginning_records()
+        # else:
+        #     if len(targets[0].to_records().data) == 0:
+        #         targets = targets[1:]
 
-            first_element = targets[0].to_records()
+        #     first_element = targets[0].to_records()
+        if len(targets[0].to_records().data) == 0:
+            targets = targets[1:]
+
+        first_element = targets[0].to_records()
+
 
         left_records = first_element
 
@@ -200,21 +204,21 @@ class RecordsMerged:
                     how='left'
                 )
 
-        if enable_end and isinstance(targets[-1], NodePath):
-            right_records = targets[-1].to_path_end_records()
+        # if enable_end and isinstance(targets[-1], NodePath):
+        #     right_records = targets[-1].to_path_end_records()
 
-            rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
-            right_records.rename_columns(rename_rule)
-            left_records = merge(
-                left_records=left_records,
-                right_records=right_records,
-                join_left_key=left_records.columns[-1],
-                join_right_key=right_records.columns[0],
-                columns=Columns.from_str(
-                    left_records.columns + right_records.columns
-                ).column_names,
-                how='left'
-            )
+        #     rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
+        #     right_records.rename_columns(rename_rule)
+        #     left_records = merge(
+        #         left_records=left_records,
+        #         right_records=right_records,
+        #         join_left_key=left_records.columns[-1],
+        #         join_right_key=right_records.columns[0],
+        #         columns=Columns.from_str(
+        #             left_records.columns + right_records.columns
+        #         ).column_names,
+        #         how='left'
+        #     )
 
         logger.info('Finished merging path records.')
         left_records.sort(first_column)
@@ -299,8 +303,42 @@ class Path(PathBase, Summarizable):
 
     def _to_records_core(self) -> RecordsInterface:
         self._verify_path(self.node_paths)
-        return RecordsMerged(self.child,
-                             self._include_first_callback, self._include_last_callback).data
+        first_records  =None
+        main_records   =None
+        last_records   =None
+
+        if self.enable_beginning:
+            if isinstance(self._child[0], NodePath):
+                first_records = self._child[0].to_path_beginning_records()
+        if self.enable_end:
+            if isinstance(self._child[-1], NodePath):
+                last_records = self._child[-1].to_path_end_records()
+        main_records = RecordsMerged(self.child).data
+
+        if first_records:
+            main_records = merge(first_records,
+                                 main_records,
+                                 first_records.columns[-1],
+                                 main_records.columns[0],
+                                 columns=Columns.from_str(
+                                    first_records.columns[:-1] + main_records.columns
+                                 ).column_names,
+                                 how='left',
+                                 progress_label='binding: node records'
+                                 )
+
+        if last_records:
+            main_records = merge(main_records,
+                                 last_records,
+                                 main_records.columns[-1],
+                                 last_records.columns[0],
+                                 columns=Columns.from_str(
+                                    main_records.columns[:-1] + last_records.columns
+                                 ).column_names,
+                                 how='left',
+                                 progress_label='binding: node records'
+                                 )
+        return main_records
 
     @staticmethod
     def _verify_path(
