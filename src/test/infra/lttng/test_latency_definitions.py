@@ -1253,8 +1253,9 @@ class TestCommunicationRecords:
         data.add_dds_write_instance(tid, 3, send_message)
         data.add_dds_bind_addr_to_stamp(
             tid, 4, send_message, source_stamp)
-        data.add_dispatch_subscription_callback_instance(
-            5, callback_obj, recv_message, source_stamp, message_stamp)
+        # data.add_dispatch_subscription_callback_instance(
+        #     5, callback_obj, recv_message, source_stamp, message_stamp)
+        data.add_rmw_take_instance(tid, 5, 0, recv_message, source_stamp)
         data.add_callback_start_instance(tid, 16, callback_obj, False)
         data.add_callback_end_instance(tid, 17, callback_obj)
         data.finalize()
@@ -1284,7 +1285,7 @@ class TestCommunicationRecords:
                     f'{communication.topic_name}/rclcpp_publish_timestamp': 1,
                     f'{communication.topic_name}/rcl_publish_timestamp': 2,
                     f'{communication.topic_name}/dds_write_timestamp': 3,
-                    f'{communication.topic_name}/message_timestamp': message_stamp,
+                    # f'{communication.topic_name}/message_timestamp': message_stamp,
                     f'{callback.callback_name}/callback_start_timestamp': 16,
                 }
             ],
@@ -1292,7 +1293,7 @@ class TestCommunicationRecords:
                 f'{communication.topic_name}/rclcpp_publish_timestamp',
                 f'{communication.topic_name}/rcl_publish_timestamp',
                 f'{communication.topic_name}/dds_write_timestamp',
-                f'{communication.topic_name}/message_timestamp',
+                # f'{communication.topic_name}/message_timestamp',
                 f'{callback.callback_name}/callback_start_timestamp',
             ],
             dtype='Int64'
@@ -1377,8 +1378,7 @@ class TestCommunicationRecords:
         data.add_dds_bind_addr_to_stamp(tid, 4, send_message, source_stamp)
         # data.add_dispatch_subscription_callback_instance(
         #     5, callback_obj, recv_message, source_stamp, message_stamp)
-        data.add_rmw_take_instance(
-            tid, 0, 0, recv_message ,source_stamp)
+        data.add_rmw_take_instance(tid, 5, 0, recv_message, source_stamp)
         data.add_callback_start_instance(tid, 16, callback_obj, False)
         data.add_callback_end_instance(tid, 17, callback_obj)
 
@@ -1399,8 +1399,7 @@ class TestCommunicationRecords:
         data.add_dds_bind_addr_to_stamp(tid, 20, send_message, source_stamp)
         # data.add_dispatch_subscription_callback_instance(
         #     21, callback_obj, recv_message, source_stamp, message_stamp)
-        data.add_rmw_take_instance(
-            tid, 0, 0, recv_message ,source_stamp)
+        data.add_rmw_take_instance(tid, 21, 0, recv_message, source_stamp)
         data.add_callback_start_instance(tid, 22, callback_obj, False)
         data.add_callback_end_instance(tid, 23, callback_obj)
         data.finalize()

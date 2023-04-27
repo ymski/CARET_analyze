@@ -501,7 +501,7 @@ class RecordsSource():
             columns=Columns.from_str(
                 inter_proc_subscribe.columns + callback_start_instances.columns
             ).column_names,
-            how='left',
+            how='use_latest',
             progress_label='binding: rmw_take and callback_start',
         )
 
