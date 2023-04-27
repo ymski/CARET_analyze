@@ -725,7 +725,7 @@ class TestSubscriptionRecords:
             None,
             columns=[
                 f'{sub_struct_mock.callback_name}/callback_start_timestamp',
-                f'{sub_struct_mock.topic_name}/message_timestamp',
+                # f'{sub_struct_mock.topic_name}/message_timestamp',
                 f'{sub_struct_mock.topic_name}/source_timestamp',
             ],
             dtype='Int64'
@@ -754,6 +754,8 @@ class TestSubscriptionRecords:
         data = Ros2DataModel()
         data.add_dispatch_subscription_callback_instance(
             0, callback_object, message, source_timestamp, message_timestamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, 0, source_timestamp)
         data.add_callback_start_instance(tid, 1, callback_object, False)
         data.add_callback_end_instance(tid, 3, callback_object)
         data.finalize()
@@ -770,7 +772,7 @@ class TestSubscriptionRecords:
                     # 'pid': pid,
                     # 'tid': tid,
                     f'{subscription.callback_name}/callback_start_timestamp': 1,
-                    f'{subscription.topic_name}/message_timestamp': 2,
+                    # f'{subscription.topic_name}/message_timestamp': 2,
                     f'{subscription.topic_name}/source_timestamp': 3,
                     # f'{subscription.callback_name}/callback_end_timestamp': 3,
                 }
@@ -779,7 +781,7 @@ class TestSubscriptionRecords:
                 # 'pid',
                 # 'tid',
                 f'{subscription.callback_name}/callback_start_timestamp',
-                f'{subscription.topic_name}/message_timestamp',
+                # f'{subscription.topic_name}/message_timestamp',
                 f'{subscription.topic_name}/source_timestamp',
                 # f'{subscription.callback_name}/callback_end_timestamp',
             ],
@@ -811,6 +813,8 @@ class TestSubscriptionRecords:
         data = Ros2DataModel()
         data.add_dispatch_subscription_callback_instance(
             0, callback_object, message, source_timestamp, message_timestamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, message, source_timestamp)
         data.add_callback_start_instance(tid, 6, callback_object, False)
 
         # subscription_id, node_name, topic_name, timestamp
@@ -830,7 +834,7 @@ class TestSubscriptionRecords:
                     # 'tid': tid,
                     f'{subscription.callback_name}/callback_start_timestamp': 6,
                     # f'{subscription.callback_name}/callback_end_timestamp': 8,
-                    f'{subscription.topic_name}/message_timestamp': message_timestamp,
+                    # f'{subscription.topic_name}/message_timestamp': message_timestamp,
                     f'{subscription.topic_name}/source_timestamp': source_timestamp,
                     f'{subscription.topic_name}/tilde_subscribe_timestamp': 7,
                     f'{subscription.topic_name}/tilde_message_id': tilde_message_id,
@@ -841,7 +845,7 @@ class TestSubscriptionRecords:
                 # 'tid',
                 f'{subscription.callback_name}/callback_start_timestamp',
                 # f'{subscription.callback_name}/callback_end_timestamp',
-                f'{subscription.topic_name}/message_timestamp',
+                # f'{subscription.topic_name}/message_timestamp',
                 f'{subscription.topic_name}/source_timestamp',
                 f'{subscription.topic_name}/tilde_subscribe_timestamp',
                 f'{subscription.topic_name}/tilde_message_id',
@@ -1021,6 +1025,8 @@ class TestNodeRecords:
         tid = 7
         data.add_dispatch_subscription_callback_instance(
             0, callback_object, message, source_timestamp, message_timestamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, source_timestamp, 0)
         data.add_callback_start_instance(tid, 1, callback_object, False)
         pub_handle = 9
         data.add_rclcpp_publish_instance(tid, 2, pub_handle, 5, 6)
@@ -1110,6 +1116,8 @@ class TestNodeRecords:
 
         data.add_dispatch_subscription_callback_instance(
             0, callback_object, message, source_timestamp, message_timestamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, message, source_timestamp)
         data.add_callback_start_instance(tid, 1, callback_object, False)
         data.add_tilde_subscribe(2, tilde_sub, tilde_message_id)
         data.add_tilde_publish(3, tilde_pub, tilde_sub_id, tilde_message_id)
@@ -1276,7 +1284,7 @@ class TestCommunicationRecords:
                     f'{communication.topic_name}/rclcpp_publish_timestamp': 1,
                     f'{communication.topic_name}/rcl_publish_timestamp': 2,
                     f'{communication.topic_name}/dds_write_timestamp': 3,
-                    # f'{communication.topic_name}/message_timestamp': message_stamp,
+                    f'{communication.topic_name}/message_timestamp': message_stamp,
                     f'{callback.callback_name}/callback_start_timestamp': 16,
                 }
             ],
@@ -1284,7 +1292,7 @@ class TestCommunicationRecords:
                 f'{communication.topic_name}/rclcpp_publish_timestamp',
                 f'{communication.topic_name}/rcl_publish_timestamp',
                 f'{communication.topic_name}/dds_write_timestamp',
-                # f'{communication.topic_name}/message_timestamp',
+                f'{communication.topic_name}/message_timestamp',
                 f'{callback.callback_name}/callback_start_timestamp',
             ],
             dtype='Int64'
@@ -1367,8 +1375,10 @@ class TestCommunicationRecords:
         source_stamp = 9
         data.add_rclcpp_publish_instance(tid, 1, pub_handle, send_message, message_stamp)
         data.add_dds_bind_addr_to_stamp(tid, 4, send_message, source_stamp)
-        data.add_dispatch_subscription_callback_instance(
-            5, callback_obj, recv_message, source_stamp, message_stamp)
+        # data.add_dispatch_subscription_callback_instance(
+        #     5, callback_obj, recv_message, source_stamp, message_stamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, recv_message ,source_stamp)
         data.add_callback_start_instance(tid, 16, callback_obj, False)
         data.add_callback_end_instance(tid, 17, callback_obj)
 
@@ -1387,8 +1397,10 @@ class TestCommunicationRecords:
         source_stamp = 209
         data.add_rclcpp_publish_instance(tid, 19, pub_handle, send_message, message_stamp)
         data.add_dds_bind_addr_to_stamp(tid, 20, send_message, source_stamp)
-        data.add_dispatch_subscription_callback_instance(
-            21, callback_obj, recv_message, source_stamp, message_stamp)
+        # data.add_dispatch_subscription_callback_instance(
+        #     21, callback_obj, recv_message, source_stamp, message_stamp)
+        data.add_rmw_take_instance(
+            tid, 0, 0, recv_message ,source_stamp)
         data.add_callback_start_instance(tid, 22, callback_obj, False)
         data.add_callback_end_instance(tid, 23, callback_obj)
         data.finalize()

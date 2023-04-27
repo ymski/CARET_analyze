@@ -210,7 +210,7 @@ class RecordsProviderLttng(RuntimeDataProvider):
             Columns
 
             - [callback_name]/callback_start_timestamp
-            - [topic_name]/message_timestamp
+            # - [topic_name]/message_timestamp
             - [topic_name]/source_timestamp
 
         Raises
@@ -232,7 +232,7 @@ class RecordsProviderLttng(RuntimeDataProvider):
 
         columns = [
             COLUMN_NAME.CALLBACK_START_TIMESTAMP,
-            COLUMN_NAME.MESSAGE_TIMESTAMP,
+            # COLUMN_NAME.MESSAGE_TIMESTAMP,
             COLUMN_NAME.SOURCE_TIMESTAMP,
         ]
         self._format(sub_records, columns)
@@ -264,7 +264,7 @@ class RecordsProviderLttng(RuntimeDataProvider):
             Columns
 
             - [callback_name]/callback_start_timestamp
-            - [topic_name]/message_timestamp
+            # - [topic_name]/message_timestamp
             - [topic_name]/source_timestamp
             - [topic_name]/tilde_subscribe_timestamp
             - [topic_name]/tilde_message_id
@@ -307,7 +307,7 @@ class RecordsProviderLttng(RuntimeDataProvider):
 
         columns = [
             COLUMN_NAME.CALLBACK_START_TIMESTAMP,
-            COLUMN_NAME.MESSAGE_TIMESTAMP,
+            # COLUMN_NAME.MESSAGE_TIMESTAMP,
             COLUMN_NAME.SOURCE_TIMESTAMP,
             COLUMN_NAME.TILDE_SUBSCRIBE_TIMESTAMP,
             COLUMN_NAME.TILDE_MESSAGE_ID,
@@ -1447,7 +1447,7 @@ class FilteredRecordsSource:
                 [
                     ColumnValue(COLUMN_NAME.CALLBACK_OBJECT),
                     ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
-                    ColumnValue(COLUMN_NAME.MESSAGE_TIMESTAMP),
+                    # ColumnValue(COLUMN_NAME.MESSAGE_TIMESTAMP),
                     ColumnValue(COLUMN_NAME.SOURCE_TIMESTAMP),
                 ]
             )
