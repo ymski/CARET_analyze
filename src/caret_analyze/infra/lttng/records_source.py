@@ -83,7 +83,8 @@ class RecordsSource():
             - source_timestamp
 
         """
-        publish = self._data.rclcpp_publish_instances
+        publish = self._data.rclcpp_publish_instances.clone()
+        publish.drop_columns([COLUMN_NAME.MESSAGE_TIMESTAMP, COLUMN_NAME.PUBLISHER_HANDLE])
 
         publish = merge_sequential_for_addr_track(
             source_records=publish,
@@ -119,9 +120,9 @@ class RecordsSource():
                 columns=[
                     COLUMN_NAME.RCLCPP_INTER_PUBLISH_TIMESTAMP,
                     COLUMN_NAME.RCL_PUBLISH_TIMESTAMP,
-                    COLUMN_NAME.PUBLISHER_HANDLE,
+                    # COLUMN_NAME.PUBLISHER_HANDLE,
                     COLUMN_NAME.MESSAGE,
-                    COLUMN_NAME.MESSAGE_TIMESTAMP,
+                    # COLUMN_NAME.MESSAGE_TIMESTAMP,
                 ],
                 progress_label='binding: rclcpp_publish and rcl_publish',
             )
