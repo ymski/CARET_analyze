@@ -66,7 +66,8 @@ class RecordsSource():
         - dds_bind_addr_to_stamp
         - rcl_publish (Optional)
         - dds_write (Optional)
-        - dispatch_subscription_callback
+        # - dispatch_subscription_callback
+        - rmw_take
         - callback_start
 
         Returns
@@ -79,12 +80,13 @@ class RecordsSource():
             - rclcpp_publish_timestamp
             - rcl_publish_timestamp (Optional)
             - dds_write_timestamp (Optional)
-            - message_timestamp
+            # - message_timestamp
             - source_timestamp
 
         """
         publish = self._data.rclcpp_publish_instances.clone()
-        publish.drop_columns([COLUMN_NAME.MESSAGE_TIMESTAMP, COLUMN_NAME.PUBLISHER_HANDLE])
+        # publish.drop_columns([COLUMN_NAME.MESSAGE_TIMESTAMP])
+        publish.drop_columns([COLUMN_NAME.TID])
 
         publish = merge_sequential_for_addr_track(
             source_records=publish,
@@ -107,7 +109,7 @@ class RecordsSource():
         )
 
         rcl_publish_records = self._data.rcl_publish_instances.clone()
-        rcl_publish_records.drop_columns([COLUMN_NAME.PUBLISHER_HANDLE])
+        # rcl_publish_records.drop_columns([COLUMN_NAME.PUBLISHER_HANDLE])
         if len(rcl_publish_records) > 0:
             publish = merge_sequential(
                 left_records=publish,
@@ -120,9 +122,7 @@ class RecordsSource():
                 columns=[
                     COLUMN_NAME.RCLCPP_INTER_PUBLISH_TIMESTAMP,
                     COLUMN_NAME.RCL_PUBLISH_TIMESTAMP,
-                    # COLUMN_NAME.PUBLISHER_HANDLE,
-                    COLUMN_NAME.MESSAGE,
-                    # COLUMN_NAME.MESSAGE_TIMESTAMP,
+                    COLUMN_NAME.PUBLISHER_HANDLE,
                 ],
                 progress_label='binding: rclcpp_publish and rcl_publish',
             )
@@ -176,23 +176,21 @@ class RecordsSource():
         ])
 
         callback_start_instances = self.inter_callback_records.clone()
-        callback_start_instances.drop_columns([COLUMN_NAME.TID])
-        subscription = self._data.dispatch_subscription_callback_instances
+        subscription = self._data.rmw_take_instances
 
         subscription = merge_sequential(
             left_records=subscription,
             right_records=callback_start_instances,
-            left_stamp_key=COLUMN_NAME.DISPATCH_SUBSCRIPTION_CALLBACK_TIMESTAMP,
+            left_stamp_key=COLUMN_NAME.RMW_TAKE_TIMESTAMP,
             right_stamp_key=COLUMN_NAME.CALLBACK_START_TIMESTAMP,
-            join_left_key=COLUMN_NAME.CALLBACK_OBJECT,
-            join_right_key=COLUMN_NAME.CALLBACK_OBJECT,
+            join_left_key=COLUMN_NAME.TID,
+            join_right_key=COLUMN_NAME.TID,
             columns=Columns.from_str(
                 subscription.columns + callback_start_instances.columns
             ).column_names,
             how='left',
-            progress_label='binding: dispatch_subscription_callback and callback_start',
+            progress_label='binding: rmw_take and callback_start',
         )
-
         # communication = merge(
         #     publish,
         #     self._data.on_data_available_instances,
@@ -221,7 +219,7 @@ class RecordsSource():
                 COLUMN_NAME.ADDR,
                 COLUMN_NAME.MESSAGE,
                 COLUMN_NAME.DDS_BIND_ADDR_TO_STAMP_TIMESTAMP,
-                COLUMN_NAME.DISPATCH_SUBSCRIPTION_CALLBACK_TIMESTAMP,
+                COLUMN_NAME.RMW_TAKE_TIMESTAMP,
             ],
         )
 
@@ -247,7 +245,7 @@ class RecordsSource():
         inter_proc_publish = self._data.rclcpp_publish_instances
 
         rcl_publish_records = self._data.rcl_publish_instances.clone()
-        rcl_publish_records.drop_columns([COLUMN_NAME.PUBLISHER_HANDLE])
+        # rcl_publish_records.drop_columns([COLUMN_NAME.PUBLISHER_HANDLE])
         if len(rcl_publish_records) > 0:
             inter_proc_publish = merge_sequential(
                 left_records=inter_proc_publish,
@@ -304,7 +302,7 @@ class RecordsSource():
                 COLUMN_NAME.ADDR,
                 COLUMN_NAME.MESSAGE,
                 COLUMN_NAME.DDS_BIND_ADDR_TO_STAMP_TIMESTAMP,
-                COLUMN_NAME.DISPATCH_SUBSCRIPTION_CALLBACK_TIMESTAMP,
+                COLUMN_NAME.DISPATCH_SUBSCRIPTION_CALLBACK_TIMESTAMP
             ],
         )
 
@@ -490,7 +488,10 @@ class RecordsSource():
     @cached_property
     def subscribe_records(self) -> RecordsInterface:
         callback_start_instances = self.inter_callback_records
+        print(f'cb_s: {callback_start_instances.to_dataframe().shape}')
+
         inter_proc_subscribe = self._data.rmw_take_instances
+        print(f'rmw: {inter_proc_subscribe.to_dataframe().shape}')
 
         inter_proc_subscribe = merge_sequential(
             left_records=inter_proc_subscribe,
@@ -502,12 +503,15 @@ class RecordsSource():
             columns=Columns.from_str(
                 inter_proc_subscribe.columns + callback_start_instances.columns
             ).column_names,
-            how='use_latest',
+            how='left',
             progress_label='binding: rmw_take and callback_start',
         )
+        print(f'inter: {inter_proc_subscribe.to_dataframe().shape}')
 
         intra_proc_subscribe = self.intra_callback_records.clone()
         intra_proc_subscribe.drop_columns([COLUMN_NAME.MESSAGE_TIMESTAMP])
+        print(f'intra: {intra_proc_subscribe.to_dataframe().shape}')
+
 
         subscribe = merge_sequential(
             left_records=inter_proc_subscribe,
@@ -522,6 +526,8 @@ class RecordsSource():
             how='outer',
             progress_label='binding intra and inter subscribe'
         )
+        print(f'sub: {subscribe.to_dataframe().shape}')
+
 
         return subscribe
 
