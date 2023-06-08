@@ -17,7 +17,7 @@
         <link rel="next" href="../runtime/">
       
       <link rel="icon" href="../assets/images/tier4.png">
-      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.12">
+      <meta name="generator" content="mkdocs-1.4.3, mkdocs-material-9.1.15">
     
     
       
@@ -25,10 +25,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.85bb2934.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.26e3688c.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.a6bdf11c.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ecc896b0.min.css">
       
       
 
@@ -523,6 +523,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#caret_analyze.plot.plot_facade.Plot.create_response_time_stacked_bar_plot" class="md-nav__link">
+    create_response_time_stacked_bar_plot()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -820,6 +827,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#caret_analyze.plot.plot_facade.Plot.create_response_time_stacked_bar_plot" class="md-nav__link">
+    create_response_time_stacked_bar_plot()
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -963,8 +977,12 @@
           <td>
                 <code>str, optional</code>
           </td>
-          <td><p>X axis value's type , by default 'system_time'.</p>
-<h4 id="caret_analyze.plot.stacked_bar.latency_stacked_bar.LatencyStackedBar.to_dataframe--todo-apply-xaxis_type-now-only-support-system-time">TODO: apply xaxis_type, now only support system time.<a class="headerlink" href="#caret_analyze.plot.stacked_bar.latency_stacked_bar.LatencyStackedBar.to_dataframe--todo-apply-xaxis_type-now-only-support-system-time" title="Permanent link">#</a></h4></td>
+          <td>
+            <div class="doc-md-description">
+              <p>X axis value's type , by default 'system_time'.</p>
+<h4 id="caret_analyze.plot.stacked_bar.latency_stacked_bar.LatencyStackedBar.to_dataframe--todo-apply-xaxis_type-now-only-support-system-time">TODO: apply xaxis_type, now only support system time.<a class="headerlink" href="#caret_analyze.plot.stacked_bar.latency_stacked_bar.LatencyStackedBar.to_dataframe--todo-apply-xaxis_type-now-only-support-system-time" title="Permanent link">#</a></h4>
+            </div>
+          </td>
           <td>
                 <code>&#39;system_time&#39;</code>
           </td>
@@ -985,7 +1003,11 @@
           <td>
                 <code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>
           </td>
-          <td><p>Latency dataframe.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Latency dataframe.</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1021,8 +1043,12 @@
           <td>
                 <code><span title="typing.Dict">Dict</span>[str, <span title="typing.List">List</span>[int]], <span title="typing.List">List</span>[str]</code>
           </td>
-          <td><p>Stacked bar dict.
-Columns (not include 'start time').</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Stacked bar dict.
+Columns (not include 'start time').</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1075,6 +1101,10 @@ Columns (not include 'start time').</p></td>
 
 <h3 id="caret_analyze.plot.plot_facade.Plot.create_callback_scheduling_plot" class="doc doc-heading">
 <code class="highlight language-python"><span class="n">create_callback_scheduling_plot</span><span class="p">(</span><span class="n">target_objects</span><span class="p">,</span> <span class="n">lstrip_s</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rstrip_s</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
 
 <a href="#caret_analyze.plot.plot_facade.Plot.create_callback_scheduling_plot" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1095,11 +1125,31 @@ Columns (not include 'start time').</p></td>
     </thead>
     <tbody>
         <tr>
+          <td><code>target_objects</code></td>
+          <td>
+                <code><span title="caret_analyze.plot.plot_facade.CallbackSchedTypes">CallbackSchedTypes</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>CallbackSchedTypes = (Application | Executor | Path | Node |
+CallbackGroup | Collection[CallbackGroup])
+Instances that are the sources of the plotting.</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
           <td><code>lstrip_s</code></td>
           <td>
                 <code>float, optional</code>
           </td>
-          <td><p>Start time of cropping range, by default 0.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Start time of cropping range, 0 by default.</p>
+            </div>
+          </td>
           <td>
                 <code>0</code>
           </td>
@@ -1109,7 +1159,11 @@ Columns (not include 'start time').</p></td>
           <td>
                 <code>float</code>
           </td>
-          <td><p>End point of cropping range, by default 0.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>End point of cropping range, 0 by default.</p>
+            </div>
+          </td>
           <td>
                 <code>0</code>
           </td>
@@ -1130,7 +1184,11 @@ Columns (not include 'start time').</p></td>
           <td>
                 <code><span title="caret_analyze.plot.callback_scheduling.CallbackSchedulingPlot">CallbackSchedulingPlot</span></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1144,7 +1202,11 @@ Columns (not include 'start time').</p></td>
 
 
 <h3 id="caret_analyze.plot.plot_facade.Plot.create_frequency_timeseries_plot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">create_frequency_timeseries_plot</span><span class="p">(</span><span class="n">target_objects</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">create_frequency_timeseries_plot</span><span class="p">(</span><span class="o">*</span><span class="n">target_objects</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
 
 <a href="#caret_analyze.plot.plot_facade.Plot.create_frequency_timeseries_plot" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1165,17 +1227,19 @@ Columns (not include 'start time').</p></td>
     </thead>
     <tbody>
         <tr>
-          <td><code>target_object</code></td>
+          <td><code>target_objects</code></td>
           <td>
-                <code><span title="caret_analyze.plot.plot_facade.TimeSeriesTypes">TimeSeriesTypes</span></code>
+                <code><span title="collections.abc.Collection">Collection</span>[<span title="caret_analyze.plot.plot_facade.TimeSeriesTypes">TimeSeriesTypes</span>]</code>
           </td>
-          <td><p>TimeSeriesPlotTypes = Union[
-CallbackBase, Communication, Union[Publisher, Subscription]
-]
-Instances that are the sources of the plotting.
-This also accepts multiple inputs by unpacking.</p></td>
           <td>
-              <em>required</em>
+            <div class="doc-md-description">
+              <p>TimeSeriesTypes = CallbackBase | Communication | Publisher | Subscription
+Instances that are the sources of the plotting.
+This also accepts multiple inputs by unpacking.</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
           </td>
         </tr>
     </tbody>
@@ -1194,7 +1258,11 @@ This also accepts multiple inputs by unpacking.</p></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="caret_analyze.plot.plot_base.PlotBase" href="#caret_analyze.plot.PlotBase">PlotBase</a></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1208,7 +1276,11 @@ This also accepts multiple inputs by unpacking.</p></td>
 
 
 <h3 id="caret_analyze.plot.plot_facade.Plot.create_latency_timeseries_plot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">create_latency_timeseries_plot</span><span class="p">(</span><span class="n">target_objects</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">create_latency_timeseries_plot</span><span class="p">(</span><span class="o">*</span><span class="n">target_objects</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
 
 <a href="#caret_analyze.plot.plot_facade.Plot.create_latency_timeseries_plot" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1229,17 +1301,18 @@ This also accepts multiple inputs by unpacking.</p></td>
     </thead>
     <tbody>
         <tr>
-          <td><code>target_object</code></td>
+          <td><code>target_objects</code></td>
           <td>
-                <code><span title="caret_analyze.plot.plot_facade.TimeSeriesTypes">TimeSeriesTypes</span></code>
+                <code><span title="collections.abc.Collection">Collection</span>[<a class="autorefs autorefs-internal" title="caret_analyze.runtime.CallbackBase" href="../runtime/#caret_analyze.runtime.CallbackBase">CallbackBase</a> | <a class="autorefs autorefs-internal" title="caret_analyze.runtime.Communication" href="../runtime/#caret_analyze.runtime.Communication">Communication</a>]</code>
           </td>
-          <td><p>TimeSeriesPlotTypes = Union[
-CallbackBase, Communication, Union[Publisher, Subscription]
-]
-Instances that are the sources of the plotting.
-This also accepts multiple inputs by unpacking.</p></td>
           <td>
-              <em>required</em>
+            <div class="doc-md-description">
+              <p>Instances that are the sources of the plotting.
+This also accepts multiple inputs by unpacking.</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
           </td>
         </tr>
     </tbody>
@@ -1258,7 +1331,11 @@ This also accepts multiple inputs by unpacking.</p></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="caret_analyze.plot.plot_base.PlotBase" href="#caret_analyze.plot.PlotBase">PlotBase</a></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1301,7 +1378,11 @@ This also accepts multiple inputs by unpacking.</p></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="caret_analyze.runtime.Path" href="../runtime/#caret_analyze.runtime.Path">Path</a></code>
           </td>
-          <td><p>Target path to be plotted.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Target path to be plotted.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1309,9 +1390,13 @@ This also accepts multiple inputs by unpacking.</p></td>
         <tr>
           <td><code>granularity</code></td>
           <td>
-                <code><span title="typing.Optional">Optional</span>[str], optional</code>
+                <code>str | None, optional</code>
           </td>
-          <td><p>Granularity of chain with two value; [raw/node], by default None.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Granularity of chain with two value; [raw/node], None by default.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1321,8 +1406,12 @@ This also accepts multiple inputs by unpacking.</p></td>
           <td>
                 <code>bool, optional</code>
           </td>
-          <td><p>If there is a drop, the flow is drawn by connecting it to the next one,
-by default False.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If there is a drop, the flow is drawn by connecting it to the next one,
+False by default.</p>
+            </div>
+          </td>
           <td>
                 <code>False</code>
           </td>
@@ -1332,7 +1421,11 @@ by default False.</p></td>
           <td>
                 <code>float, optional</code>
           </td>
-          <td><p>Start time of cropping range, by default 0.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Start time of cropping range, 0 by default.</p>
+            </div>
+          </td>
           <td>
                 <code>0</code>
           </td>
@@ -1342,7 +1435,11 @@ by default False.</p></td>
           <td>
                 <code>float</code>
           </td>
-          <td><p>End point of cropping range, by default 0.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>End point of cropping range, 0 by default.</p>
+            </div>
+          </td>
           <td>
                 <code>0</code>
           </td>
@@ -1363,7 +1460,11 @@ by default False.</p></td>
           <td>
                 <code><span title="caret_analyze.plot.message_flow.MessageFlowPlot">MessageFlowPlot</span></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1377,7 +1478,11 @@ by default False.</p></td>
 
 
 <h3 id="caret_analyze.plot.plot_facade.Plot.create_period_timeseries_plot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">create_period_timeseries_plot</span><span class="p">(</span><span class="n">target_objects</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">create_period_timeseries_plot</span><span class="p">(</span><span class="o">*</span><span class="n">target_objects</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
 
 <a href="#caret_analyze.plot.plot_facade.Plot.create_period_timeseries_plot" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1398,17 +1503,19 @@ by default False.</p></td>
     </thead>
     <tbody>
         <tr>
-          <td><code>target_object</code></td>
+          <td><code>target_objects</code></td>
           <td>
-                <code><span title="caret_analyze.plot.plot_facade.TimeSeriesTypes">TimeSeriesTypes</span></code>
+                <code><span title="collections.abc.Collection">Collection</span>[<span title="caret_analyze.plot.plot_facade.TimeSeriesTypes">TimeSeriesTypes</span>]</code>
           </td>
-          <td><p>TimeSeriesPlotTypes = Union[
-CallbackBase, Communication, Union[Publisher, Subscription]
-]
-Instances that are the sources of the plotting.
-This also accepts multiple inputs by unpacking.</p></td>
           <td>
-              <em>required</em>
+            <div class="doc-md-description">
+              <p>TimeSeriesTypes = CallbackBase | Communication | Publisher | Subscription
+Instances that are the sources of the plotting.
+This also accepts multiple inputs by unpacking.</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
           </td>
         </tr>
     </tbody>
@@ -1427,7 +1534,11 @@ This also accepts multiple inputs by unpacking.</p></td>
           <td>
                 <code><a class="autorefs autorefs-internal" title="caret_analyze.plot.plot_base.PlotBase" href="#caret_analyze.plot.PlotBase">PlotBase</a></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1441,7 +1552,11 @@ This also accepts multiple inputs by unpacking.</p></td>
 
 
 <h3 id="caret_analyze.plot.plot_facade.Plot.create_response_time_histogram_plot" class="doc doc-heading">
-<code class="highlight language-python"><span class="n">create_response_time_histogram_plot</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="s1">&#39;best-to-worst&#39;</span><span class="p">,</span> <span class="n">binsize_ns</span><span class="o">=</span><span class="mi">10000000</span><span class="p">)</span></code>
+<code class="highlight language-python"><span class="n">create_response_time_histogram_plot</span><span class="p">(</span><span class="o">*</span><span class="n">paths</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="s1">&#39;best-to-worst&#39;</span><span class="p">,</span> <span class="n">binsize_ns</span><span class="o">=</span><span class="mi">10000000</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
 
 <a href="#caret_analyze.plot.plot_facade.Plot.create_response_time_histogram_plot" class="headerlink" title="Permanent link">#</a></h3>
 
@@ -1462,14 +1577,18 @@ This also accepts multiple inputs by unpacking.</p></td>
     </thead>
     <tbody>
         <tr>
-          <td><code>path</code></td>
+          <td><code>paths</code></td>
           <td>
-                <code><span title="typing.Collection">Collection</span>[<a class="autorefs autorefs-internal" title="caret_analyze.runtime.Path" href="../runtime/#caret_analyze.runtime.Path">Path</a>]</code>
+                <code><span title="collections.abc.Collection">Collection</span>[<a class="autorefs autorefs-internal" title="caret_analyze.runtime.Path" href="../runtime/#caret_analyze.runtime.Path">Path</a>]</code>
           </td>
-          <td><p>Target path.
-This also accepts multiple path inputs by unpacking.</p></td>
           <td>
-              <em>required</em>
+            <div class="doc-md-description">
+              <p>Target path.
+This also accepts multiple path inputs by unpacking.</p>
+            </div>
+          </td>
+          <td>
+                <code>()</code>
           </td>
         </tr>
         <tr>
@@ -1477,8 +1596,12 @@ This also accepts multiple path inputs by unpacking.</p></td>
           <td>
                 <code>str, optional</code>
           </td>
-          <td><p>response time calculation method, by default best-to-worst.
-supported case: [best-to-worst/best/worst].</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Response time calculation method, best-to-worst by default.
+supported case: [best-to-worst/best/worst].</p>
+            </div>
+          </td>
           <td>
                 <code>&#39;best-to-worst&#39;</code>
           </td>
@@ -1488,7 +1611,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>int, optional</code>
           </td>
-          <td><p>binsize [ns], by default 1000000.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>binsize [ns], 1000000 by default.</p>
+            </div>
+          </td>
           <td>
                 <code>10000000</code>
           </td>
@@ -1509,7 +1636,113 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>ResponseTimePlot</code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+
+<h3 id="caret_analyze.plot.plot_facade.Plot.create_response_time_stacked_bar_plot" class="doc doc-heading">
+<code class="highlight language-python"><span class="n">create_response_time_stacked_bar_plot</span><span class="p">(</span><span class="n">target_object</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="s1">&#39;latency&#39;</span><span class="p">,</span> <span class="n">case</span><span class="o">=</span><span class="s1">&#39;worst&#39;</span><span class="p">)</span></code>
+  
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-staticmethod"><code>staticmethod</code></small>
+  </span>
+
+<a href="#caret_analyze.plot.plot_facade.Plot.create_response_time_stacked_bar_plot" class="headerlink" title="Permanent link">#</a></h3>
+
+
+  <div class="doc doc-contents ">
+  
+      <p>Get StackedBarPlot instance.</p>
+
+  <p><strong>Parameters:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Description</th>
+        <th>Default</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td><code>target_object</code></td>
+          <td>
+                <code><a class="autorefs autorefs-internal" title="caret_analyze.runtime.Path" href="../runtime/#caret_analyze.runtime.Path">Path</a></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Target path</p>
+            </div>
+          </td>
+          <td>
+              <em>required</em>
+          </td>
+        </tr>
+        <tr>
+          <td><code>metrics</code></td>
+          <td>
+                <code>str</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Metrics for stacked bar graph.
+supported metrics: [latency]</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;latency&#39;</code>
+          </td>
+        </tr>
+        <tr>
+          <td><code>case</code></td>
+          <td>
+                <code>str, optional</code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              <p>Response time calculation method, worst by default.
+supported case: [best/worst].</p>
+            </div>
+          </td>
+          <td>
+                <code>&#39;worst&#39;</code>
+          </td>
+        </tr>
+    </tbody>
+  </table>
+
+  <p><strong>Returns:</strong></p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+        <tr>
+          <td>
+                <code><span title="caret_analyze.plot.stacked_bar.StackedBarPlot">StackedBarPlot</span></code>
+          </td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1590,7 +1823,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[str]</code>
           </td>
-          <td><p>Type of time for timestamp.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Type of time for timestamp.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1600,7 +1837,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[bool]</code>
           </td>
-          <td><p>If True, the drawn graph can be expanded in the y-axis direction.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, the drawn graph can be expanded in the y-axis direction.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1610,7 +1851,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code><span title="typing.Optional">Optional</span>[bool]</code>
           </td>
-          <td><p>If True, all legends are drawn even if the number of legends exceeds the threshold.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, all legends are drawn even if the number of legends exceeds the threshold.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1631,7 +1876,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>bokeh.<span title="bokeh.plotting">plotting</span>.<span title="bokeh.plotting.Figure">Figure</span></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1670,7 +1919,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>str</code>
           </td>
-          <td><p>The graph will be saved as a file.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>The graph will be saved as a file.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1680,7 +1933,11 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>str</code>
           </td>
-          <td><p>Title of the graph, by default ''.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Title of the graph, by default ''.</p>
+            </div>
+          </td>
           <td>
                 <code>&#39;&#39;</code>
           </td>
@@ -1690,8 +1947,12 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>str</code>
           </td>
-          <td><p>Type of x-axis of the graph to be plotted.
-"system_time", "index", or "sim_time" can be specified.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Type of x-axis of the graph to be plotted.
+"system_time", "index", or "sim_time" can be specified.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1701,8 +1962,12 @@ supported case: [best-to-worst/best/worst].</p></td>
           <td>
                 <code>bool</code>
           </td>
-          <td><p>If True, the drawn graph can be expanded in the y-axis direction
-by the mouse wheel.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, the drawn graph can be expanded in the y-axis direction
+by the mouse wheel.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1712,8 +1977,12 @@ by the mouse wheel.</p></td>
           <td>
                 <code>bool</code>
           </td>
-          <td><p>If True, all legends are drawn
-even if the number of legends exceeds the threshold.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, all legends are drawn
+even if the number of legends exceeds the threshold.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1734,7 +2003,11 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code>UnsupportedTypeError</code>
           </td>
-          <td><p>Argument xaxis_type is not "system_time", "index", or "sim_time".</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Argument xaxis_type is not "system_time", "index", or "sim_time".</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1773,8 +2046,12 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code>str</code>
           </td>
-          <td><p>Type of x-axis of the graph to be plotted.
-"system_time", "index", or "sim_time" can be specified.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Type of x-axis of the graph to be plotted.
+"system_time", "index", or "sim_time" can be specified.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1784,8 +2061,12 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code>bool</code>
           </td>
-          <td><p>If True, the drawn graph can be expanded in the y-axis direction
-by the mouse wheel.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, the drawn graph can be expanded in the y-axis direction
+by the mouse wheel.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1795,8 +2076,12 @@ by the mouse wheel.</p></td>
           <td>
                 <code>bool</code>
           </td>
-          <td><p>If True, all legends are drawn
-even if the number of legends exceeds the threshold.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>If True, all legends are drawn
+even if the number of legends exceeds the threshold.</p>
+            </div>
+          </td>
           <td>
                 <code>None</code>
           </td>
@@ -1817,7 +2102,11 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code>UnsupportedTypeError</code>
           </td>
-          <td><p>Argument xaxis_type is not "system_time", "index", or "sim_time".</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Argument xaxis_type is not "system_time", "index", or "sim_time".</p>
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1860,7 +2149,11 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code>str</code>
           </td>
-          <td><p>Type of time for timestamp.</p></td>
+          <td>
+            <div class="doc-md-description">
+              <p>Type of time for timestamp.</p>
+            </div>
+          </td>
           <td>
               <em>required</em>
           </td>
@@ -1881,7 +2174,11 @@ even if the number of legends exceeds the threshold.</p></td>
           <td>
                 <code><span title="pandas">pd</span>.<span title="pandas.DataFrame">DataFrame</span></code>
           </td>
-          <td></td>
+          <td>
+            <div class="doc-md-description">
+              
+            </div>
+          </td>
         </tr>
     </tbody>
   </table>
@@ -1955,7 +2252,7 @@ even if the number of legends exceeds the threshold.</p></td>
     <script id="__config" type="application/json">{"base": "..", "features": ["navigation.expand", "navigation.indexes", "navigation.instant", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top"], "search": "../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../assets/javascripts/bundle.c2be25ad.min.js"></script>
+      <script src="../assets/javascripts/bundle.b4d07000.min.js"></script>
       
         <script src="https://unpkg.com/mermaid@8.13.10/dist/mermaid.min.js"></script>
       
