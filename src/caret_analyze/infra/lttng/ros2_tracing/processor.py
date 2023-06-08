@@ -589,10 +589,9 @@ class Ros2Handler():
         message = get_field(event, 'message')
         publisher_handle = get_field(event, 'publisher_handle')
         timestamp = get_field(event, '_timestamp')
-        message_timestamp = get_field(event, 'message_timestamp')
         tid = get_field(event, '_vtid')
         self.data.add_rclcpp_intra_publish_instance(
-            tid, timestamp, publisher_handle, message, message_timestamp)
+            tid, timestamp, publisher_handle, message)
 
     def _handle_dispatch_subscription_callback(
         self,

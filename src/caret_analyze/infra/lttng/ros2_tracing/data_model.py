@@ -401,14 +401,12 @@ class Ros2DataModel():
         timestamp: int,
         publisher_handle: int,
         message: int,
-        message_timestamp: int,
     ) -> None:
         record = {
             'tid': tid,
             'rclcpp_intra_publish_timestamp': timestamp,
             'publisher_handle': publisher_handle,
             'message': message,
-            'message_timestamp': message_timestamp,
         }
         self.rclcpp_intra_publish_instances.append(record)
 
