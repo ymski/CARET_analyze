@@ -546,13 +546,11 @@ class Ros2Handler():
         if not self._is_valid_data(event):
             return
 
-        publisher_handle = get_field(event, 'publisher_handle')
         timestamp = get_field(event, '_timestamp')
         message = get_field(event, 'message')
         tid = get_field(event, '_vtid')
-        message_timestamp = get_field(event, 'message_timestamp')
         self.data.add_rclcpp_publish_instance(
-            tid, timestamp, publisher_handle, message, message_timestamp)
+            tid, timestamp, message)
 
     def _handle_rcl_publish(
         self,

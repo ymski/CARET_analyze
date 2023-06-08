@@ -146,9 +146,7 @@ class Ros2DataModel():
             None, [
                 ColumnValue('tid'),
                 ColumnValue('rclcpp_publish_timestamp'),
-                ColumnValue('publisher_handle'),
                 ColumnValue('message'),
-                ColumnValue('message_timestamp'),
             ]
         )
         self.rcl_publish_instances = RecordsFactory.create_instance(
@@ -418,16 +416,12 @@ class Ros2DataModel():
         self,
         tid: int,
         timestamp: int,
-        publisher_handle: int,
         message: int,
-        message_timestamp: int,
     ) -> None:
         record = {
             'tid': tid,
             'rclcpp_publish_timestamp': timestamp,
-            'publisher_handle': publisher_handle,
             'message': message,
-            'message_timestamp': message_timestamp,
         }
         self.rclcpp_publish_instances.append(record)
 
