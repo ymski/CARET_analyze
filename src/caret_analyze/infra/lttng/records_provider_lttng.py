@@ -1603,7 +1603,18 @@ class FilteredRecordsSource:
 
         """
         grouped_records = self._grouped_publish_records
+        print(publisher_handles[0] in list(grouped_records.keys()))
         if len(grouped_records) == 0:
+            return RecordsFactory.create_instance(
+                None,
+                columns=[
+                    ColumnValue(COLUMN_NAME.PUBLISHER_HANDLE),
+                    ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                    ColumnValue(COLUMN_NAME.MESSAGE_TIMESTAMP),
+                    ColumnValue(COLUMN_NAME.SOURCE_TIMESTAMP),
+                ]
+            )
+        if len(publisher_handles) == 0:
             return RecordsFactory.create_instance(
                 None,
                 columns=[
@@ -1623,6 +1634,7 @@ class FilteredRecordsSource:
                 pub_records.concat(inter_pub_records)
 
         pub_records.sort(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP)
+        print(f'len: {len(pub_records)}')
 
         return pub_records
 
