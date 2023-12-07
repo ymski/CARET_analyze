@@ -1614,7 +1614,7 @@ class FilteredRecordsSource:
                     ColumnValue(COLUMN_NAME.SOURCE_TIMESTAMP),
                 ]
             )
-        if len(publisher_handles) == 0:
+        if publisher_handles[0] not in list(grouped_records.keys()):
             return RecordsFactory.create_instance(
                 None,
                 columns=[
