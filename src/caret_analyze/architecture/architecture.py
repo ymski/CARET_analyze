@@ -41,7 +41,7 @@ class Architecture(Summarizable):
     def __init__(
         self,
         file_type: str,
-        file_path: str,
+        file_path: str | list[str],
     ) -> None:
         from .architecture_reader_factory import ArchitectureReaderFactory
         from .architecture_loaded import ArchitectureLoaded
