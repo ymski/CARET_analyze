@@ -26,7 +26,7 @@ import bt2
 from .data_model import Ros2DataModel
 
 if TYPE_CHECKING:
-    from ..id_remapper import AddressRemapper
+    from ..id_remapper import IDRemapperCollection
 
 
 def get_field(event, key):
@@ -57,7 +57,7 @@ class Ros2Handler():
     def __init__(
         self,
         data: Ros2DataModel,
-        addr_remapper: AddressRemapper,
+        remapper: IDRemapperCollection,
         monotonic_to_system_time_offset: int | None,
     ) -> None:
         """
@@ -67,7 +67,7 @@ class Ros2Handler():
         ----------
         data : Ros2DataModel
             DataModel to be handles
-        addr_remapper : AddressRemapper
+        remapper : IDRemapperCollection
             Addrees remapper to resolve address duplication.
         monotonic_to_system_time_offset : int | None
             Offset time to convert monotonic time to system time.
@@ -76,27 +76,7 @@ class Ros2Handler():
             to use time sampled from the trace point.
 
         """
-        # self._context_handle_remapper = IDRemapper()
-        # self._node_handle_remapper = IDRemapper()
-        # self._rmw_node_handle_remapper = IDRemapper()
-        # self._publisher_handle_remapper = IDRemapper()
-        # self._rmw_publisher_handle_remapper = IDRemapper()
-        # self._subscription_handle_remapper = IDRemapper()
-        # self._rmw_subscription_handle_remapper = IDRemapper()
-        # self._subscription_remapper = IDRemapper()
-        # self._service_handle_remapper = IDRemapper()
-        # self._rmw_service_handle_remapper = IDRemapper()
-        # self._client_handle_remapper = IDRemapper()
-        # self._rmw_client_handle_remapper = IDRemapper()
-        # self._timer_handle_remapper = IDRemapper()
-        # self._state_machine_remapper = IDRemapper()
-        # self._executor_addr_remapper = IDRemapper()
-        # self._entities_collector_addr_remapper = IDRemapper()
-        # self._callback_group_addr_remapper = IDRemapper()
-        # self._callback_remapper = IDRemapper()
-        # self._buffer_remapper = IDRemapper()
-        # self._ipb_remapper = IDRemapper()
-        self._remapper = addr_remapper
+        self._remapper = remapper
 
         self._monotonic_to_system_offset: int | None = monotonic_to_system_time_offset
         self._caret_init_recorded: defaultdict[int, bool] = defaultdict(lambda: False)
