@@ -475,6 +475,7 @@ class LttngInfo:
 
         """
         sub = self._formatted.subscriptions.clone()
+        # カラム名の衝突を回避
         sub.rename_column('construction_order', 'subscription_construction_order')
 
         nodes = self._formatted.nodes.clone()
@@ -484,6 +485,7 @@ class LttngInfo:
         sub.merge(tilde_sub, ['node_name', 'topic_name'], how='left')
 
         sub_cbs = self._formatted.subscription_callbacks.clone()
+        # remove duplicated columns
         sub_cbs.drop_column('topic_name')
         sub_cbs.drop_column('depth')
         sub_cbs.drop_column('node_handle')
@@ -934,6 +936,10 @@ class DataFrameFormatted:
             ['subscription_handle', 'timestamp', 'node_handle',
              'rmw_handle', 'topic_name', 'depth', 'construction_order']
         )
+        subscriptions = data.subscriptions.clone()
+        subscriptions.reset_index()
+
+        # subscriptinos vs subscription_objetcsに関して
         # ここでほしい情報はSubscriptionValueを生成できるだけの情報 - subscription_callback
         # SubscriptionValue(
         #   topic_name: str,
@@ -941,8 +947,8 @@ class DataFrameFormatted:
         #   node_id: str | None,
         #   callback_id: str | None,
         #   construction_order: int)
-        subscriptions = data.subscriptions.clone()
-        subscriptions.reset_index()
+        # data.subscription_objectsだとnode_handleが不足
+
 
         DataFrameFormatted._add_construction_order_publisher_or_subscription(
             subscriptions, 'construction_order', 'timestamp', 'node_handle', 'topic_name')
