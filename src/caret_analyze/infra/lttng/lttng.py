@@ -42,7 +42,7 @@ from ...common import ClockConverter
 from ...exceptions import InvalidArgumentError
 from ...record import RecordsInterface
 from ...value_objects import  \
-    CallbackGroupValue, ExecutorValue, NodeValue, NodeValueWithId, Qos, TimerValue
+    CallbackGroupValue, ExecutorValue, NodeValue, NodeValueWithId, Qos, TimerValue, SubscriptionValue
 
 Event = dict[str, int]
 
@@ -618,6 +618,25 @@ class Lttng(InfraBase):
 
         """
         return self._info.get_publishers(node)
+
+    def get_subscriptions(
+        self,
+        node: NodeValue
+    ) -> Sequence[SubscriptionValue]:
+        """
+        Get subscriptions information.
+
+        Parameters
+        ----------
+        node : NodeValue
+            target node.
+
+        Returns
+        -------
+        Sequence[SubscriptionValue]
+
+        """
+        return self._info.get_subscriptions(node)
 
     def get_timers(
         self,

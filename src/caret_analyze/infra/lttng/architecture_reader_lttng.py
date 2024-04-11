@@ -121,19 +121,20 @@ class ArchitectureReaderLttng(ArchitectureReader):
         info: list[SubscriptionValue] = []
         construction_order_counter: dict[tuple[str, str], int] = defaultdict(int)
 
-        for sub_cb in self.get_subscription_callbacks(node):
-            topic_name = sub_cb.subscribe_topic_name
-            node_name = sub_cb.node_name
-            construction_order = construction_order_counter[node_name, topic_name]
-            construction_order_counter[node_name, topic_name] += 1
+        # for sub_cb in self.get_subscription_callbacks(node):
+        #     topic_name = sub_cb.subscribe_topic_name
+        #     node_name = sub_cb.node_name
+        #     construction_order = construction_order_counter[node_name, topic_name]
+        #     construction_order_counter[node_name, topic_name] += 1
 
-            info.append(SubscriptionValue(
-                topic_name=topic_name,
-                node_name=node_name,
-                node_id=sub_cb.node_id,
-                callback_id=sub_cb.callback_id,
-                construction_order=construction_order
-            ))
+        #     info.append(SubscriptionValue(
+        #         topic_name=topic_name,
+        #         node_name=node_name,
+        #         node_id=sub_cb.node_id,
+        #         callback_id=sub_cb.callback_id,
+        #         construction_order=construction_order
+        #     ))
+        info = self._lttng.get_subscriptions(node)
         return info
 
     def get_services(

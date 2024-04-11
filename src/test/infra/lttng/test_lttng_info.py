@@ -27,6 +27,7 @@ from caret_analyze.value_objects import (CallbackGroupType, ExecutorType,
 
 from caret_analyze.value_objects.node import NodeValue
 from caret_analyze.value_objects.timer import TimerValue
+from caret_analyze.value_objects.subscription import SubscriptionValue
 
 
 import pandas as pd
@@ -177,6 +178,115 @@ class TestLttngInfo:
 
         pubs_info = info.get_publishers(NodeValue('/node_', 'node_id_'))
         assert len(pubs_info) == 0
+
+    def test_get_subscriptions_info(self, mocker):
+        data = Ros2DataModel()
+
+        subscription_handle = 9
+        depth = 5
+        node_handle = 3
+        node_name = 'node_name'
+        tilde_subscription = 8
+
+        formatted_mock = mocker.Mock(spec=DataFrameFormatted)
+        mocker.patch('caret_analyze.infra.lttng.lttng_info.DataFrameFormatted',
+                     return_value=formatted_mock)
+
+        sub = TracePointData(pd.DataFrame.from_dict(
+            [
+                {
+                    'subscription_handle': subscription_handle,
+                    'node_handle': node_handle,
+                    'topic_name': '/topic_name',
+                    'depth': depth,
+                    'construction_order': 0
+                }
+            ]
+        ))
+        mocker.patch.object(formatted_mock, 'subscriptions', sub)
+
+        tilde_sub = TracePointData(pd.DataFrame.from_dict(
+            [
+                {
+                    'tilde_subscription': tilde_subscription,
+                    'node_name': node_name,
+                    'topic_name': '/topic_name',
+                }
+            ]
+        ))
+        mocker.patch.object(formatted_mock, 'tilde_subscriptions', tilde_sub)
+
+        node = TracePointData(pd.DataFrame.from_dict(
+            [
+                {
+                    'node_id': 'node_id',
+                    'node_handle': node_handle,
+                    'node_name': '/node',
+                }
+            ]
+        ))
+        mocker.patch.object(formatted_mock, 'nodes', node)
+
+
+        cbg_addr = 11
+        symbol = 'some_callback'
+        callback_object = 2
+        callback_object_intra = 4
+        sub_cbs = TracePointData(pd.DataFrame.from_dict(
+            [
+                {
+                    'callback_object': callback_object,
+                    'callback_object_intra': callback_object_intra,
+                    'node_handle': node_handle,
+                    'subscription_handle': subscription_handle,
+                    'callback_group_addr': cbg_addr,
+                    'topic_name': '/topic_name',
+                    'symbol': symbol,
+                    'callback_id': 'subscription_callback_0',
+                    'depth': depth,
+                    'construction_order': 0,
+                },
+            ]
+        ))
+        mocker.patch.object(formatted_mock, 'subscription_callbacks', sub_cbs)
+        mocker.patch.object(LttngInfo, '_get_timer_cbs_without_pub', return_value={})
+
+
+        sub_info_expect = SubscriptionValue(
+            node_name='/node',
+            topic_name='/topic_name',
+            node_id='node_id',
+            callback_id='subscription_callback_0',
+            construction_order=0,
+        )
+
+
+
+        sub_cb_info_expect = SubscriptionCallbackValueLttng(
+            'subscription_callback_0',
+            'node_id',
+            node_name,
+            symbol,
+            '/topic_name',
+            subscription_handle,
+            None,
+            callback_object=callback_object,
+            callback_object_intra=callback_object_intra,
+            tilde_subscription=tilde_subscription,
+            construction_order=0
+        )
+
+
+        data.finalize()
+        info = LttngInfo(data)
+
+
+        subs_info = info.get_subscriptions(NodeValue('/node', 'node_id'))
+        assert len(subs_info) == 1
+        assert subs_info[0] == sub_info_expect
+
+        subs_info = info.get_subscriptions(NodeValue('/node_', 'node_id_'))
+        assert len(subs_info) == 0
 
     def test_get_timer_callbacks_info(self, mocker):
 
@@ -336,7 +446,6 @@ class TestLttngInfo:
             node_name[0],
             symbol[0],
             topic_name[0],
-            0,
             subscription_handle[0],
             None,
             callback_object=callback_object[0],
@@ -353,7 +462,6 @@ class TestLttngInfo:
             node_name[1],
             symbol[1],
             topic_name[1],
-            0,
             subscription_handle[1],
             None,
             callback_object[1],
@@ -697,6 +805,9 @@ class TestDataFrameFormatted:
             ]
         ).convert_dtypes()
         assert timer.df.equals(expect)
+
+    def test_build_subscription_df(self, mocker):
+        pass
 
     def test_build_subscription_callbacks_df(self, mocker):
         data = Ros2DataModel()

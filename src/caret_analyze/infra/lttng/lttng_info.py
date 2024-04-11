@@ -22,6 +22,7 @@ from logging import getLogger, WARN
 
 from caret_analyze.infra.lttng.value_objects.timer_control import TimerInit
 from caret_analyze.value_objects.timer import TimerValue
+from caret_analyze.value_objects.subscription import SubscriptionValue
 
 import pandas as pd
 
@@ -225,7 +226,6 @@ class LttngInfo:
         tilde_sub = self._formatted.tilde_subscriptions.clone()
         sub.merge(tilde_sub, ['node_name', 'topic_name'], how='left')
 
-        order: dict[DataFrameFormatted.KeyTypeTopic, int] = defaultdict(int)
         for _, row in sub.df.iterrows():
             node_name = row['node_name']
             node_id = row['node_id']
@@ -242,9 +242,7 @@ class LttngInfo:
             self._id_to_topic[row['callback_id']] = row['topic_name']
 
             topic_name = row['topic_name']
-            key: DataFrameFormatted.KeyTypeTopic = node_name, topic_name
-            order_ = int(order[key])
-            order[key] += 1
+
             sub_cbs_info[node_id].append(
                 SubscriptionCallbackValueLttng(
                     callback_id=row['callback_id'],
@@ -252,7 +250,6 @@ class LttngInfo:
                     node_name=node_name,
                     symbol=row['symbol'],
                     subscribe_topic_name=topic_name,
-                    subscription_construction_order=order_,
                     publish_topics=None,
                     subscription_handle=row['subscription_handle'],
                     callback_object=row['callback_object'],
@@ -385,6 +382,11 @@ class LttngInfo:
         node_id = node.node_id
         return self._get_publishers_without_cb_bind(node_id)
 
+    @lru_cache
+    def get_subscriptions(self, node: NodeValueLttng) -> list[SubscriptionValue]:
+        node_id = node.node_id
+        return self._get_subscriptions(node_id)
+
     def get_publishers(self, node: NodeValue) -> list[PublisherValueLttng]:
         """
         Get publishers information.
@@ -457,6 +459,57 @@ class LttngInfo:
             )
 
         return pubs_info
+
+    def _get_subscriptions(self, node_id: str) -> list[SubscriptionValue]:
+        """
+        Get subscriptions information.
+
+        Parameters
+        ----------
+        node_id : str
+            node ID
+
+        Returns
+        -------
+        list[SubscriptionValue]
+
+        """
+        sub = self._formatted.subscriptions.clone()
+        sub.rename_column('construction_order', 'subscription_construction_order')
+
+        nodes = self._formatted.nodes.clone()
+        merge(sub, nodes, 'node_handle', how='left')
+        tilde_sub = self._formatted.tilde_subscriptions.clone()
+
+        sub.merge(tilde_sub, ['node_name', 'topic_name'], how='left')
+
+        sub_cbs = self._formatted.subscription_callbacks.clone()
+        sub_cbs.drop_column('topic_name')
+        sub_cbs.drop_column('depth')
+        sub_cbs.drop_column('node_handle')
+        sub_cbs.reset_index()
+
+        sub.merge(sub_cbs, ['subscription_handle'], how='left')
+
+        subs_info = []
+        for _, row in sub.df.iterrows():
+            if row['node_id'] != node_id:
+                continue
+            tilde_subscription = row['tilde_subscription']
+            if tilde_subscription is pd.NA:
+                tilde_subscription = None
+
+            subs_info.append(
+                SubscriptionValue(
+                    node_name=row['node_name'],
+                    topic_name=row['topic_name'],
+                    node_id=row['node_id'],
+                    callback_id=row['callback_id'],
+                    construction_order=row['subscription_construction_order']
+                )
+            )
+
+        return subs_info
 
     def _is_user_made_callback(
         self,
@@ -642,6 +695,7 @@ class DataFrameFormatted:
         self._srv_callbacks = self._build_srv_callbacks(data)
         self._cbg = self._build_cbg(data)
         self._pub = self._build_publisher(data)
+        self._sub = self._build_subscription(data)
         self._tilde_sub = self._build_tilde_subscription(data)
         self._tilde = self._build_tilde_publisher(data)
         self._tilde_sub_id_to_sub = self._build_tilde_sub_id(data, self._tilde_sub)
@@ -765,6 +819,23 @@ class DataFrameFormatted:
         return self._pub
 
     @property
+    def subscriptions(self) -> TracePointData:
+        """
+        Get subscription info table.
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns
+            - subscription_handle
+            - node_handle
+            - topic_name
+            - construcrion_order
+
+        """
+        return self._sub
+
+    @property
     def executor(self) -> TracePointData:
         """
         Get executor info table.
@@ -854,6 +925,37 @@ class DataFrameFormatted:
         publishers.drop_duplicate()
 
         return publishers
+
+    @staticmethod
+    def _build_subscription(
+        data: Ros2DataModel,
+    ) -> TracePointData:
+        columns = (
+            ['subscription_handle', 'timestamp', 'node_handle',
+             'rmw_handle', 'topic_name', 'depth', 'construction_order']
+        )
+        # ここでほしい情報はSubscriptionValueを生成できるだけの情報 - subscription_callback
+        # SubscriptionValue(
+        #   topic_name: str,
+        #   node_name: str,
+        #   node_id: str | None,
+        #   callback_id: str | None,
+        #   construction_order: int)
+        subscriptions = data.subscriptions.clone()
+        subscriptions.reset_index()
+
+        DataFrameFormatted._add_construction_order_publisher_or_subscription(
+            subscriptions, 'construction_order', 'timestamp', 'node_handle', 'topic_name')
+
+        def to_subscription_id(row: pd.Series):
+            subscription_handle = row['subscription_handle']
+            return f'subscription_{subscription_handle}'
+
+        subscriptions.add_column('subscription_id', to_subscription_id)
+        subscriptions.set_columns(columns)
+        subscriptions.drop_duplicate()
+
+        return subscriptions
 
     @staticmethod
     def _build_timer_control(
