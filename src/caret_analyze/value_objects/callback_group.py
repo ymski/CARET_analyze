@@ -44,7 +44,7 @@ class CallbackGroupType(ValueObject):
             type name ['mutually_exclusive', 'reentrant']
 
         """
-        if name not in ['mutually_exclusive', 'reentrant']:
+        if name not in ['mutually_exclusive', 'reentrant', 'UNDEFIND']:
             raise ValueError(f'Unsupported callback group type: {name}')
 
         self._name = name

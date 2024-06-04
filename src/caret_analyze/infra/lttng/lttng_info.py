@@ -656,13 +656,17 @@ class LttngInfo:
                 callback_ids = tuple(group_df['callback_id'].values)
                 callback_ids = tuple(Util.filter_items(self._is_user_made_callback, callback_ids))
 
-                if row['executor_addr']:
+                if row['executor_addr'] is not pd.NA:
                     executor_addr = row['executor_addr']
                 else:
                     executor_addr = None
+                if row['group_type_name'] is not pd.NA:
+                    group_type_name = row['group_type_name']
+                else:
+                    group_type_name = "UNDEFIND"
                 callback_groups_values.append(
                     CallbackGroupValueLttng(
-                        callback_group_type_name=row['group_type_name'],
+                        callback_group_type_name=group_type_name,
                         node_name=row['node_name'],
                         node_id=node_id,
                         callback_ids=callback_ids,
