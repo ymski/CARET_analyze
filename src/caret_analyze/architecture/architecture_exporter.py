@@ -262,7 +262,7 @@ class NodesDicts:
         obj: dict = {}
         obj['node_name'] = f'{node.node_name}'
 
-        if node.callback_groups is not None:
+        if len(node.callback_groups) != 0:
             obj['callback_groups'] = [{
                 'callback_group_type': cbg.callback_group_type_name,
                 'callback_group_name': cbg.callback_group_name,

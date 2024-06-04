@@ -149,7 +149,7 @@ class NodesLoaded:
         timers = timers_loaded.data
 
         callback_groups: list[CallbackGroup] = []
-        if node_value.callback_groups is not None:
+        if len(node_value.callback_groups) != 0:
             callback_groups = CallbackGroupsLoaded(
                 node_value.callback_groups,
                 provider,

@@ -174,7 +174,10 @@ class NodeStructValue(ValueObject, Summarizable):
         self._subscriptions = subscriptions_info
         self._services = services_info
         self._timers = timers
-        self._callback_groups = callback_groups
+        if callback_groups:
+            self._callback_groups = callback_groups
+        else:
+            self._callback_groups = tuple()
         self._node_paths = node_paths
         self._variable_passings_info = variable_passings
 
@@ -325,7 +328,7 @@ class NodeStructValue(ValueObject, Summarizable):
         return Util.find_one(is_target, self.paths)
 
     @property
-    def callbacks(self) -> tuple[CallbackStructValue, ...] | None:
+    def callbacks(self) -> tuple[CallbackStructValue, ...]:
         """
         Get callbacks.
 
@@ -335,9 +338,14 @@ class NodeStructValue(ValueObject, Summarizable):
             Callbacks that the node contains.
 
         """
-        if self._callback_groups is None:
-            return None
-        return tuple(Util.flatten(cbg.callbacks for cbg in self._callback_groups))
+        service_callbacks = tuple(service.callback for service in self.services
+                                  if service.callback is not None)
+        subscription_callbacks = tuple(sub.callback for sub in self.subscriptions
+                                       if sub.callback is not None)
+        timer_callbacks = tuple(timer.callback for timer in self.timers
+                                if timer.callback is not None)
+        callbacks = service_callbacks + subscription_callbacks + timer_callbacks
+        return callbacks
 
     @property
     def callback_names(self) -> tuple[str, ...] | None:
@@ -355,7 +363,7 @@ class NodeStructValue(ValueObject, Summarizable):
         return tuple(_.callback_name for _ in self.callbacks)
 
     @property
-    def callback_groups(self) -> tuple[CallbackGroupStructValue, ...] | None:
+    def callback_groups(self) -> tuple[CallbackGroupStructValue, ...]:
         """
         Get callback groups.
 
@@ -368,7 +376,7 @@ class NodeStructValue(ValueObject, Summarizable):
         return self._callback_groups
 
     @property
-    def callback_group_names(self) -> tuple[str, ...] | None:
+    def callback_group_names(self) -> tuple[str, ...]:
         """
         Get callback group names.
 
@@ -378,8 +386,6 @@ class NodeStructValue(ValueObject, Summarizable):
             Callback group names that the node contains.
 
         """
-        if self.callback_groups is None:
-            return None
         return tuple(_.callback_group_name for _ in self.callback_groups)
 
     @property

@@ -626,9 +626,25 @@ class LttngInfo:
             concat = TracePointData.concat(concat_target_dfs, column_names)
 
             nodes = self._formatted.nodes.clone()
-            callback_groups = self._formatted.callback_groups.clone()
+            # callback_groups = self._formatted.callback_groups.clone()
             merge(concat, nodes, 'node_handle')
-            merge(concat, callback_groups, 'callback_group_addr')
+            # merge(concat, callback_groups, 'callback_group_addr')
+
+            # sub_cbs = self._formatted._sub_cbs.clone()
+            # srv_cbs = self._formatted._srv_cbs.clone()
+            # tim_cbs = self._formatted._tim_cbs.clone()
+            # sub = self._formatted._sub.clone()
+            # srv = self._formatted._srv.clone()
+            # tim = self._formatted._tim.clone()
+            # merge(sub, sub_cbs, 'callback_group_addr')
+            # merge(srv, srv_cbs, 'callback_group_addr')
+            # merge(tim, tim_cbs, 'callback_group_addr')
+            # sub.drop_column('node_handle')
+            # srv.drop_column('node_handle')
+            # tim.drop_column('node_handle')
+            # merge(concat, sub, 'node_handle')
+            # merge(concat, srv, 'node_handle')
+            # merge(concat, tim, 'node_handle')
 
             callback_groups_values: list[CallbackGroupValueLttng] = []
             for _, group_df in concat.df.groupby('callback_group_addr'):
@@ -832,6 +848,9 @@ class DataFrameFormatted:
         self._tilde = self._build_tilde_publisher(data)
         self._tilde_sub_id_to_sub = self._build_tilde_sub_id(data, self._tilde_sub)
         self._timer_control = self._build_timer_control(data)
+        # self._sub_cbs = data.callback_group_subscription.clone()
+        # self._srv_cbs = data.callback_group_service.clone()
+        # self._tim_cbs = data.callback_group_timer.clone()
 
     @cached_property
     def tilde_sub_id_map(self) -> dict[int, int]:

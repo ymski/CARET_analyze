@@ -46,7 +46,10 @@ class NodeStruct():
         self._subscriptions = subscriptions_info
         self._services = services
         self._timers = timers
-        self._callback_groups = callback_groups
+        if callback_groups:
+            self._callback_groups = callback_groups
+        else:
+            self._callback_groups = []
         self._node_paths = node_paths
         self._variable_passings_info = variable_passings
 
@@ -79,19 +82,25 @@ class NodeStruct():
         return self._timers
 
     @property
-    def callbacks(self) -> list[CallbackStruct] | None:
-        if self._callback_groups is None:
-            return None
-        return list(Util.flatten(cbg.callbacks for cbg in self._callback_groups))
+    def callbacks(self) -> list[CallbackStruct]:
+        callbacks: list[CallbackStruct] = []
+        service_callbacks = [service.callback for service in self.services
+                             if service.callback is not None]
+        subscription_callbacks = [sub.callback for sub in self.subscriptions
+                                  if sub.callback is not None]
+        timer_callbacks = [timer.callback for timer in self.timers
+                           if timer.callback is not None]
+        callbacks += service_callbacks
+        callbacks += subscription_callbacks
+        callbacks += timer_callbacks
+        return callbacks
 
     @property
     def callback_names(self) -> list[str] | None:
-        if self.callbacks is None:
-            return None
         return [_.callback_name for _ in self.callbacks]
 
     @property
-    def callback_groups(self) -> list[CallbackGroupStruct] | None:
+    def callback_groups(self) -> list[CallbackGroupStruct]:
         return self._callback_groups
 
     @property
@@ -273,7 +282,7 @@ class NodeStruct():
         for t in self._timers:
             t.rename_node(src, dst)
 
-        if self._callback_groups is not None:
+        if len(self._callback_groups) != 0:
             for c in self._callback_groups:
                 c.rename_node(src, dst)
 
@@ -294,7 +303,7 @@ class NodeStruct():
         for t in self._timers:
             t.rename_topic(src, dst)
 
-        if self._callback_groups is not None:
+        if len(self._callback_groups) != 0:
             for c in self._callback_groups:
                 c.rename_topic(src, dst)
 

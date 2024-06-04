@@ -65,11 +65,14 @@ class Node(Summarizable):
         self._subscriptions = subscription
         self._timers = timers
         self._paths = node_paths
-        self._callback_groups = callback_groups
+        if callback_groups:
+            self._callback_groups = callback_groups
+        else:
+            self._callback_groups = []
         self._variable_passings = variable_passings
 
     @property
-    def callback_groups(self) -> list[CallbackGroup] | None:
+    def callback_groups(self) -> list[CallbackGroup]:
         """
         Get callback groups.
 
@@ -79,8 +82,8 @@ class Node(Summarizable):
             callback groups that the node contains.
 
         """
-        if self._callback_groups is None:
-            return None
+        if len(self._callback_groups) == 0:
+            return []
         return sorted(self._callback_groups, key=lambda x: x.callback_group_name)
 
     @property
@@ -221,7 +224,7 @@ class Node(Summarizable):
         return sorted(_.topic_name for _ in self._subscriptions)
 
     @property
-    def callback_group_names(self) -> list[str] | None:
+    def callback_group_names(self) -> list[str]:
         """
         Get callback group names.
 
@@ -231,8 +234,6 @@ class Node(Summarizable):
             callback group names that the node contains.
 
         """
-        if self.callback_groups is None:
-            return None
         return sorted(_.callback_group_name for _ in self.callback_groups)
 
     @property
