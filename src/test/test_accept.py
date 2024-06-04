@@ -23,6 +23,8 @@ def test_accept():
     # app_from_yaml = Application(arch_from_yaml, lttng)
 
     lttng = Lttng(trace_data, force_conversion=False)
+    arch_from_lttng = Architecture('lttng', trace_data)
+    arch_from_lttng.export('test_accept.yaml', force=True)
     arch = Architecture('yaml', './arch.yaml')
 
     app = Application(arch, lttng)

@@ -268,6 +268,8 @@ class NodesDicts:
                 'callback_group_name': cbg.callback_group_name,
                 'callback_names': sorted(cbg.callback_names)
             } for cbg in node.callback_groups]
+        if len(node.callback_groups) == 0:
+            obj['callback_groups'] = []
 
         if node.callbacks is not None:
             if len(node.callbacks) >= 1:

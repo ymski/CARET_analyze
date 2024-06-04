@@ -626,9 +626,9 @@ class LttngInfo:
             concat = TracePointData.concat(concat_target_dfs, column_names)
 
             nodes = self._formatted.nodes.clone()
-            # callback_groups = self._formatted.callback_groups.clone()
+            callback_groups = self._formatted.callback_groups.clone()
             merge(concat, nodes, 'node_handle')
-            # merge(concat, callback_groups, 'callback_group_addr')
+            merge(concat, callback_groups, 'callback_group_addr', how='left')
 
             # sub_cbs = self._formatted._sub_cbs.clone()
             # srv_cbs = self._formatted._srv_cbs.clone()
@@ -656,6 +656,10 @@ class LttngInfo:
                 callback_ids = tuple(group_df['callback_id'].values)
                 callback_ids = tuple(Util.filter_items(self._is_user_made_callback, callback_ids))
 
+                if row['executor_addr']:
+                    executor_addr = row['executor_addr']
+                else:
+                    executor_addr = None
                 callback_groups_values.append(
                     CallbackGroupValueLttng(
                         callback_group_type_name=row['group_type_name'],
@@ -664,7 +668,7 @@ class LttngInfo:
                         callback_ids=callback_ids,
                         callback_group_id=row['callback_group_id'],
                         callback_group_addr=row['callback_group_addr'],
-                        executor_addr=row['executor_addr'],
+                        executor_addr=executor_addr,
                     )
                 )
 

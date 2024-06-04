@@ -183,8 +183,7 @@ class NodeStruct():
             tuple(v.to_value() for v in self.services),
             tuple(v.to_value() for v in self.timers),
             tuple(v.to_value() for v in self.paths),
-            None if self.callback_groups is None
-            else tuple(v.to_value() for v in self.callback_groups),
+            tuple(v.to_value() for v in self.callback_groups),
             None if self.variable_passings is None
             else tuple(v.to_value() for v in self.variable_passings))
 
