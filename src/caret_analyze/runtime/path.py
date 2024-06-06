@@ -140,8 +140,12 @@ class RecordsMerged:
         left_records.rename_columns(rename_rule)
         first_column = first_element.columns[0]
 
+        force_seq =False
         for target_, target in zip(targets[:-1], targets[1:]):
             right_records: RecordsInterface = target.to_records()
+            if len(right_records) == 0:
+                force_seq = True
+                continue
 
             is_dummy_records = len(right_records.columns) == 0
 
@@ -174,6 +178,26 @@ class RecordsMerged:
             is_sequential = isinstance(target_, NodePath) and \
                 isinstance(target, Communication) and \
                 isinstance(target_.message_context, CallbackChain)
+
+            if force_seq:
+                force_seq = False
+                print('take実装用の特別対応')
+                print(f'prev: {target.to_dataframe().shape}')
+                print(f'left: {left_records.to_dataframe().shape}')
+                print(f'right: {right_records.to_dataframe().shape}')
+
+                left_records = merge_sequential(
+                    left_records=left_records,
+                    right_records=right_records,
+                    join_left_key=None,
+                    join_right_key=None,
+                    left_stamp_key=left_stamp_key,
+                    right_stamp_key=right_stamp_key,
+                    columns=Columns.from_str(
+                        left_records.columns + right_records.columns
+                    ).column_names,
+                    how='left_use_latest',
+                )
 
             if is_sequential:
                 left_records = merge_sequential(

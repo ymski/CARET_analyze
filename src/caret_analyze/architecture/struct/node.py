@@ -83,17 +83,20 @@ class NodeStruct():
 
     @property
     def callbacks(self) -> list[CallbackStruct]:
-        callbacks: list[CallbackStruct] = []
-        service_callbacks = [service.callback for service in self.services
-                             if service.callback is not None]
-        subscription_callbacks = [sub.callback for sub in self.subscriptions
-                                  if sub.callback is not None]
-        timer_callbacks = [timer.callback for timer in self.timers
-                           if timer.callback is not None]
-        callbacks += service_callbacks
-        callbacks += subscription_callbacks
-        callbacks += timer_callbacks
-        return callbacks
+        if len(self._callback_groups)==0:
+            return []
+        return list(Util.flatten(cbg.callbacks for cbg in self._callback_groups))
+        # callbacks: list[CallbackStruct] = []
+        # service_callbacks = [service.callback for service in self.services
+        #                      if service.callback is not None]
+        # subscription_callbacks = [sub.callback for sub in self.subscriptions
+        #                           if sub.callback is not None]
+        # timer_callbacks = [timer.callback for timer in self.timers
+        #                    if timer.callback is not None]
+        # callbacks += service_callbacks
+        # callbacks += subscription_callbacks
+        # callbacks += timer_callbacks
+        # return callbacks
 
     @property
     def callback_names(self) -> list[str] | None:
