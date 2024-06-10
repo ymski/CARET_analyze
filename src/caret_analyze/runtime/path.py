@@ -151,15 +151,15 @@ class RecordsMerged:
             if len(right_records) != 0 and \
                     len(right_records) == right_records.to_dataframe()[right_columns[-1]].isna().sum():
                 force_seq = True
-                print(f'最後のカラムが全行がnpd.naのデータを確認, right class: {target.__class__.__name__}')
-                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+                # print(f'最後のカラムが全行がnpd.naのデータを確認, right class: {target.__class__.__name__}')
+                # print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
                 # left_records.sort(first_column)
                 # return left_records
                 continue
 
             if len(right_records)==0:
-                print(f'空のデータを確認, right class: {target.__class__.__name__}')
-                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+                # print(f'空のデータを確認, right class: {target.__class__.__name__}')
+                # print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
                 force_seq = True
                 # left_records.sort(first_column)
                 # return left_records
@@ -202,11 +202,11 @@ class RecordsMerged:
 
             if force_seq:
                 force_seq = False
-                print('take実装用の特別対応')
-                print(f'left: {left_records.to_dataframe().shape}')
-                print(f'    : {left_records.columns}')
-                print(f'right: {right_records.to_dataframe().shape}')
-                print(f'     : {right_records.columns}')
+                # print('take実装用の特別対応')
+                # print(f'left: {left_records.to_dataframe().shape}')
+                # print(f'    : {left_records.columns}')
+                # print(f'right: {right_records.to_dataframe().shape}')
+                # print(f'     : {right_records.columns}')
 
                 left_records = merge_sequential(
                     left_records=left_records,
@@ -220,7 +220,7 @@ class RecordsMerged:
                     ).column_names,
                     how='left_use_latest',
                 )
-                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, is_sequential: {is_sequential}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+                # print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, is_sequential: {is_sequential}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
 
                 continue
 
