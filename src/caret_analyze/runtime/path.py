@@ -141,10 +141,28 @@ class RecordsMerged:
         first_column = first_element.columns[0]
 
         force_seq =False
+        cnt = 0
         for target_, target in zip(targets[:-1], targets[1:]):
+            print(f'iter: {cnt}, right shape: {target.to_dataframe().shape}')
+            cnt += 1
             right_records: RecordsInterface = target.to_records()
-            if len(right_records) == 0:
+            prev_shape = left_records.to_dataframe().shape
+            right_columns = right_records.to_dataframe().columns
+            if len(right_records) != 0 and \
+                    len(right_records) == right_records.to_dataframe()[right_columns[-1]].isna().sum():
                 force_seq = True
+                print(f'最後のカラムが全行がnpd.naのデータを確認, right class: {target.__class__.__name__}')
+                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+                # left_records.sort(first_column)
+                # return left_records
+                continue
+
+            if len(right_records)==0:
+                print(f'空のデータを確認, right class: {target.__class__.__name__}')
+                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+                force_seq = True
+                # left_records.sort(first_column)
+                # return left_records
                 continue
 
             is_dummy_records = len(right_records.columns) == 0
@@ -161,7 +179,8 @@ class RecordsMerged:
                 right_records)
             right_records.rename_columns(rename_rule)
 
-            if left_records.columns[-1] != right_records.columns[0]:
+            if not force_seq and left_records.columns[-1] != right_records.columns[0]:
+                print('columns mismatched !!!!!')
                 raise InvalidRecordsError('left columns[-1] != right columns[0]')
             left_stamp_key = left_records.columns[-1]
             right_stamp_key = right_records.columns[0]
@@ -179,12 +198,15 @@ class RecordsMerged:
                 isinstance(target, Communication) and \
                 isinstance(target_.message_context, CallbackChain)
 
+            print(left_stamp_key, right_stamp_key)
+
             if force_seq:
                 force_seq = False
                 print('take実装用の特別対応')
-                print(f'prev: {target.to_dataframe().shape}')
                 print(f'left: {left_records.to_dataframe().shape}')
+                print(f'    : {left_records.columns}')
                 print(f'right: {right_records.to_dataframe().shape}')
+                print(f'     : {right_records.columns}')
 
                 left_records = merge_sequential(
                     left_records=left_records,
@@ -198,6 +220,10 @@ class RecordsMerged:
                     ).column_names,
                     how='left_use_latest',
                 )
+                print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, is_sequential: {is_sequential}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+
+                continue
+
 
             if is_sequential:
                 left_records = merge_sequential(
@@ -223,9 +249,14 @@ class RecordsMerged:
                     ).column_names,
                     how='left'
                 )
+            print(f'prev: {prev_shape}, right:{right_records.to_dataframe().shape}, -> merged: {left_records.to_dataframe().shape}, is_sequential: {is_sequential}, right class: {target.__class__.__name__}, hasNan:{left_records.to_dataframe().isna().sum().sum() != 0}')
+
 
         if include_last_callback and isinstance(targets[-1], NodePath):
             right_records = targets[-1].to_path_end_records()
+
+
+
 
             rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
             right_records.rename_columns(rename_rule)
@@ -406,7 +437,7 @@ class Path(PathBase, Summarizable):
             comm.publish_node.callbacks for comm in self.communications
             if comm.publish_node.callbacks
         )
-        if self.communications[-1].subscribe_node.callbacks is not None:
+        if len(self.communications[-1].subscribe_node.callbacks) != 0:
             callbacks.extend(self.communications[-1].subscribe_node.callbacks)
 
         return callbacks

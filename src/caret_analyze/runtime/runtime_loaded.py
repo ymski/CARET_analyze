@@ -195,7 +195,7 @@ class NodesLoaded:
     def callbacks(self) -> list[CallbackBase] | None:
         cbs = []
         for node in self._nodes:
-            if node.callbacks is not None:
+            if len(node.callbacks )!= 0:
                 cbs += node.callbacks
         return cbs
 
