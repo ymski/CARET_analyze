@@ -23,7 +23,8 @@ from .subscription import Subscription
 from ..common import Summarizable, Summary
 from ..exceptions import Error
 from ..infra import RecordsProvider
-from ..record import RecordsFactory, RecordsInterface
+from ..infra.lttng.column_names import COLUMN_NAME
+from ..record import RecordsFactory, RecordsInterface, ColumnValue
 from ..value_objects import MessageContext, NodePathStructValue
 
 logger = getLogger(__name__)
@@ -154,9 +155,24 @@ class NodePath(PathBase, Summarizable):
 
         """
         if self.message_context is None:
-            return RecordsFactory.create_instance()
+            return RecordsFactory.create_instance(
+                    None,
+                    columns=[
+                        ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                        ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                    ]
+                )
 
         records = self._provider.node_records(self._val)
+
+        if len(records) == 0:
+            records = RecordsFactory.create_instance(
+                    None,
+                    columns=[
+                        ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                        ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                    ]
+                )
         return records
 
     @property
@@ -287,6 +303,13 @@ class NodePath(PathBase, Summarizable):
             except Error as e:
                 logger.warning(e)
                 self._path_beginning_records_cache = RecordsFactory.create_instance()
+                # self._path_beginning_records_cache = RecordsFactory.create_instance(
+                #     None,
+                #     columns=[
+                #         ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                #         ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                #     ]
+                # )
 
         assert self._path_beginning_records_cache is not None
         return self._path_beginning_records_cache
@@ -308,6 +331,13 @@ class NodePath(PathBase, Summarizable):
             except Error as e:
                 logger.warning(e)
                 self._path_end_records_cache = RecordsFactory.create_instance()
+                # self._path_end_records_cache = RecordsFactory.create_instance(
+                #     None,
+                #     columns=[
+                #         ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                #         ColumnValue(COLUMN_NAME.CALLBACK_END_TIMESTAMP),
+                #     ]
+                # )
 
         assert self._path_end_records_cache is not None
         return self._path_end_records_cache
@@ -323,7 +353,13 @@ class NodePath(PathBase, Summarizable):
 
         """
         if self._val.publisher is None:
-            return RecordsFactory.create_instance()
+            return RecordsFactory.create_instance(
+                    None,
+                    columns=[
+                        ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                        ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                    ]
+                )
 
         records = self._provider.path_beginning_records(self._val.publisher)
         return records
@@ -339,7 +375,13 @@ class NodePath(PathBase, Summarizable):
 
         """
         if self._val.subscription_callback is None:
-            return RecordsFactory.create_instance()
+            return RecordsFactory.create_instance(
+                None,
+                columns=[
+                    ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                    ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                ]
+            )
 
         records = self._provider.path_end_records(self._val.subscription_callback)
         return records

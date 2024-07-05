@@ -666,6 +666,15 @@ class RecordsProviderLttng(RuntimeDataProvider):
         publisher_handles = self._helper.get_publisher_handles(publisher)
         records = self._source.path_beginning_records(publisher_handles)
 
+        if len(records) == 0:
+            records = RecordsFactory.create_instance(
+                None,
+                columns=[
+                    ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                    ColumnValue(COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP),
+                ]
+            )
+
         columns = [
             COLUMN_NAME.CALLBACK_START_TIMESTAMP,
             COLUMN_NAME.RCLCPP_PUBLISH_TIMESTAMP,
@@ -696,6 +705,15 @@ class RecordsProviderLttng(RuntimeDataProvider):
         """
         callback_objects = self._helper.get_callback_objects(callback)
         records = self._source.callback_records(*callback_objects)
+
+        if len(records) == 0:
+            records = RecordsFactory.create_instance(
+                None,
+                columns=[
+                    ColumnValue(COLUMN_NAME.CALLBACK_START_TIMESTAMP),
+                    ColumnValue(COLUMN_NAME.CALLBACK_END_TIMESTAMP),
+                ]
+            )
 
         columns = [
             COLUMN_NAME.CALLBACK_START_TIMESTAMP,
