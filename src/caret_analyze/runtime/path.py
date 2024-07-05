@@ -254,24 +254,29 @@ class RecordsMerged:
 
         if include_last_callback and isinstance(targets[-1], NodePath):
             right_records = targets[-1].to_path_end_records()
+            if not right_records.to_dataframe().empty:
+                # print('このブロック内ではinclude_last_callback==True, 最後のノードはtake実装ではない')
+                # print(right_records.to_dataframe())
+                # print(right_records.to_dataframe().columns)
+                # print(right_records.to_dataframe().shape)
+                # print(right_records.to_dataframe().empty)
 
-
-
-
-            rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
-            right_records.rename_columns(rename_rule)
-            if left_records.columns[-1] != right_records.columns[0]:
-                raise InvalidRecordsError('left columns[-1] != right columns[0]')
-            left_records = merge(
-                left_records=left_records,
-                right_records=right_records,
-                join_left_key=left_records.columns[-1],
-                join_right_key=right_records.columns[0],
-                columns=Columns.from_str(
-                    left_records.columns + right_records.columns
-                ).column_names,
-                how='left'
-            )
+                rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
+                right_records.rename_columns(rename_rule)
+                if left_records.columns[-1] != right_records.columns[0]:
+                    raise InvalidRecordsError('left columns[-1] != right columns[0]')
+                # print(right_records.to_dataframe().columns)
+                left_records = merge(
+                    left_records=left_records,
+                    right_records=right_records,
+                    join_left_key=left_records.columns[-1],
+                    join_right_key=right_records.columns[0],
+                    columns=Columns.from_str(
+                        left_records.columns + right_records.columns
+                    ).column_names,
+                    how='left'
+                )
+                # print(right_records.to_dataframe().columns)
 
         logger.info('Finished merging path records.')
         left_records.sort(first_column)
