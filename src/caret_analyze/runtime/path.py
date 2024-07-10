@@ -123,6 +123,7 @@ class RecordsMerged:
     ) -> RecordsInterface:
         logger.info('Started merging path records.')
 
+        force_seq =False
         column_merger = ColumnMerger()
         if include_first_callback and isinstance(targets[0], NodePath):
             first_element = targets[0].to_path_beginning_records()
@@ -131,6 +132,11 @@ class RecordsMerged:
                 targets = targets[1:]
 
             first_element = targets[0].to_records()
+            if len(first_element) != 0 and \
+                len(first_element) == first_element.to_dataframe()[first_element.columns[-1]].isna().sum():
+                force_seq = True
+                print(first_element.columns[-1])
+                first_element.drop_columns([first_element.columns[-1]])
 
         left_records = first_element
 
@@ -140,7 +146,6 @@ class RecordsMerged:
         left_records.rename_columns(rename_rule)
         first_column = first_element.columns[0]
 
-        force_seq =False
         cnt = 0
         for target_, target in zip(targets[:-1], targets[1:]):
             print(f'iter: {cnt}, right shape: {target.to_dataframe().shape}')
