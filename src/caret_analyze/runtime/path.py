@@ -157,8 +157,8 @@ class RecordsMerged:
                 right_records)
             right_records.rename_columns(rename_rule)
 
-            if left_records.columns[-1] != right_records.columns[0]:
-                raise InvalidRecordsError('left columns[-1] != right columns[0]')
+            # if left_records.columns[-1] != right_records.columns[0]:
+            #     raise InvalidRecordsError('left columns[-1] != right columns[0]')
             left_stamp_key = left_records.columns[-1]
             right_stamp_key = right_records.columns[0]
 
@@ -192,8 +192,8 @@ class RecordsMerged:
                 left_records = merge(
                     left_records=left_records,
                     right_records=right_records,
-                    join_left_key=left_records.columns[-1],
-                    join_right_key=right_records.columns[0],
+                    join_left_key=left_stamp_key,
+                    join_right_key=right_stamp_key,
                     columns=Columns.from_str(
                         left_records.columns + right_records.columns
                     ).column_names,
@@ -205,8 +205,8 @@ class RecordsMerged:
 
             rename_rule = column_merger.append_columns_and_return_rename_rule(right_records)
             right_records.rename_columns(rename_rule)
-            # if left_records.columns[-1] != right_records.columns[0]:
-            #     raise InvalidRecordsError('left columns[-1] != right columns[0]')
+            if left_records.columns[-1] != right_records.columns[0]:
+                raise InvalidRecordsError('left columns[-1] != right columns[0]')
             left_records = merge(
                 left_records=left_records,
                 right_records=right_records,
@@ -220,6 +220,9 @@ class RecordsMerged:
 
         logger.info('Finished merging path records.')
         left_records.sort(first_column)
+        
+        source_columns = [s for s in left_records.columns if s.endswith('source_timestamp/0')]
+        left_records.drop_columns(source_columns)
 
         return left_records
 
