@@ -153,6 +153,8 @@ class RecordsMerged:
             return False
 
         def _get_merge_key(left_records: RecordsInterface, right_records: RecordsInterface):
+            
+            # プロセス内通信の場合には別途対応が必要！！！
             column_pair = None
             # case: left=NodePath, right=Communication
             if 'rclcpp_publish' in left_records.columns[-1] and \
@@ -162,7 +164,7 @@ class RecordsMerged:
                 right_key = right_records.columns[0]
                 column_pair = (left_key, right_key)
 
-            # case: left: Communication (take_impl)
+            # case: left: Communication(take_impl)
             elif _relate_to_take_impl(left_records):
                 left_key = _get_source_columns(left_records)[-1]
                 right_key = _get_source_columns(right_records)[-1]
