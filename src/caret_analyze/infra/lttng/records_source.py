@@ -405,31 +405,6 @@ class RecordsSource():
     @cached_property
     def rmw_take_records(self) -> RecordsInterface:
         rmw_take_records = self._data.rmw_take_instances.clone()
-        # rcl_sub_init_records = RecordsFactory.create_instance(
-        #     self._data.subscriptions.clone(),
-        #     columns=[
-        #         ColumnValue(COLUMN_NAME.CALLBACK_OBJECT),
-        #         ColumnValue(COLUMN_NAME.RMW_SUBSCRIPTION_HANDLE),
-        #     ])
-        # records = merge(
-        #     rmw_take_records,
-        #     rcl_sub_init_records,
-        #     join_left_key=COLUMN_NAME.RMW_SUBSCRIPTION_HANDLE,
-        #     join_right_key='rmw_handle',
-        #     columns=[
-        #         ColumnValue(COLUMN_NAME.SOURCE_TIMESTAMP),
-        #         ColumnValue(COLUMN_NAME.CALLBACK_OBJECT),
-        #         ColumnValue(COLUMN_NAME.RMW_SUBSCRIPTION_HANDLE),
-        #     ],
-        #     how='left'
-        # )
-        # return RecordsFactory.create_instance(
-        #     None,
-        #     columns=[
-        #         ColumnValue(COLUMN_NAME.SOURCE_TIMESTAMP),
-        #         ColumnValue(COLUMN_NAME.CALLBACK_OBJECT),
-        #         ColumnValue(COLUMN_NAME.RMW_SUBSCRIPTION_HANDLE),
-        #     ])
         return rmw_take_records
 
     @cached_property

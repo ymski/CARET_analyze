@@ -220,20 +220,30 @@ class RecordsProviderLttng(RuntimeDataProvider):
         InvalidArgumentError
 
         """
-        # from .ros2_tracing.data_model_service import DataModelService
         callback = subscription.callback
         callback_objects = self._helper.get_subscription_callback_objects(callback)
-        # sub = self._helper.get_lttng_subscription(callback_objects[0])
-        
-        # data_model_srv = DataModelService(self._lttng.data)
-        # rmw_handle = data_model_srv._get_rmw_handle_from_callback_object(callback_objects[0])
-        # rmw_handle = 94610291809120
-        sub = self._lttng.data.map_callback_to_sub[callback_objects[0]] # interのみ
+
+        # callback_objects[0]: inter, callback_objects[1]: intra
+        # subscription -> take implementation must be use inter-proce communication 
+        sub = self._lttng.data.map_callback_to_sub[callback_objects[0]]
         sub_handle = self._lttng.data.map_sub_to_sub_handle[sub]
         rmw_handle = self._lttng.data.map_sub_hanlde_to_rmw_handle[sub_handle]
+
+        # get rmw_records, which relates to callback_object
         rmw_records = self._source._grouped_rmw_records[rmw_handle]
+
+        # drop columns
         columns = rmw_records.columns
-        rmw_records.drop_columns(list(set(columns) - {'source_timestamp'}))
+        drop_columns = list(set(columns) - {'source_timestamp'})
+        rmw_records.drop_columns(drop_columns)
+
+        # add prefix to columns; e.g. [topic_name]/source_timestamp
+        self._rename_column(
+            rmw_records,
+            callback.callback_name,
+            subscription.topic_name,
+            None
+        )
         return rmw_records
 
     def _subscribe_records(
@@ -1284,8 +1294,8 @@ class NodeRecordsUseLatestMessage:
         take = False
 
         sub_records = self._provider.subscribe_records(self._node_path.subscription)
-        if len(sub_records) == 0:
-            take = True
+        is_take_node = len(sub_records) == 0
+        if is_take_node:
             logger.warn('this path container take implemantation. ')
             sub_records = self._provider.subscription_take_records(self._node_path.subscription)
             print(sub_records.to_dataframe().shape)
@@ -1297,32 +1307,32 @@ class NodeRecordsUseLatestMessage:
             f'{self._node_path.publish_topic_name}/rclcpp_publish_timestamp',
         ]
 
-        if take:
-            pub_sub_records = merge_sequential(
-                left_records=sub_records,
-                right_records=pub_records,
-                left_stamp_key='source_timestamp',
-                right_stamp_key=pub_records.columns[0],
-                join_left_key=None,
-                join_right_key=None,
-                columns=Columns.from_str(
-                    sub_records.columns + pub_records.columns
-                ).column_names,
-                how='left_use_latest',
-            )
-        else:
-            pub_sub_records = merge_sequential(
-                left_records=sub_records,
-                right_records=pub_records,
-                left_stamp_key=sub_records.columns[0],
-                right_stamp_key=pub_records.columns[0],
-                join_left_key=None,
-                join_right_key=None,
-                columns=Columns.from_str(
-                    sub_records.columns + pub_records.columns
-                ).column_names,
-                how='left_use_latest',
-            )
+        # if take:
+        #     pub_sub_records = merge_sequential(
+        #         left_records=sub_records,
+        #         right_records=pub_records,
+        #         left_stamp_key=sub_records.columns[0],
+        #         right_stamp_key=pub_records.columns[0],
+        #         join_left_key=None,
+        #         join_right_key=None,
+        #         columns=Columns.from_str(
+        #             sub_records.columns + pub_records.columns
+        #         ).column_names,
+        #         how='left_use_latest',
+        #     )
+        # else:
+        pub_sub_records = merge_sequential(
+            left_records=sub_records,
+            right_records=pub_records,
+            left_stamp_key=sub_records.columns[0],
+            right_stamp_key=pub_records.columns[0],
+            join_left_key=None,
+            join_right_key=None,
+            columns=Columns.from_str(
+                sub_records.columns + pub_records.columns
+            ).column_names,
+            how='left_use_latest',
+        )
 
         drop_columns = list(set(pub_sub_records.columns) - set(columns))
         drop_columns += [s for s in pub_sub_records.columns if s.endswith('callback_start')]
