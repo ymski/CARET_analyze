@@ -88,7 +88,8 @@ class RecordsProviderLttng(RuntimeDataProvider):
             - [topic_name]/rclcpp_publish_timestamp
             - [topic_name]/rcl_publish_timestamp (Optional)
             - [topic_name]/dds_publish_timestamp (Optional)
-            - [callback_name]/callback_start_timestamp
+            - [topic_name]/source_timestamp (for inter-proc)
+            - [callback_name]/callback_start_timestamps
 
         """
         assert comm_val.subscribe_callback_name is not None
@@ -194,6 +195,46 @@ class RecordsProviderLttng(RuntimeDataProvider):
             return self._subscribe_records(subscription)
 
         return self._subscribe_records_with_tilde(subscription)
+
+    def subscription_take_records(
+        self,
+        subscription: SubscriptionStructValue
+    ) -> RecordsInterface:
+        """
+        Provide subscription records.
+
+        Parameters
+        ----------
+        subscription : SubscriptionStructValue
+            Target subscription value.
+
+        Returns
+        -------
+        RecordsInterface
+            Columns
+
+            - [topic_name]/source_timestamp
+
+        Raises
+        ------
+        InvalidArgumentError
+
+        """
+        # from .ros2_tracing.data_model_service import DataModelService
+        callback = subscription.callback
+        callback_objects = self._helper.get_subscription_callback_objects(callback)
+        # sub = self._helper.get_lttng_subscription(callback_objects[0])
+        
+        # data_model_srv = DataModelService(self._lttng.data)
+        # rmw_handle = data_model_srv._get_rmw_handle_from_callback_object(callback_objects[0])
+        # rmw_handle = 94610291809120
+        sub = self._lttng.data.map_callback_to_sub[callback_objects[0]] # interのみ
+        sub_handle = self._lttng.data.map_sub_to_sub_handle[sub]
+        rmw_handle = self._lttng.data.map_sub_hanlde_to_rmw_handle[sub_handle]
+        rmw_records = self._source._grouped_rmw_records[rmw_handle]
+        columns = rmw_records.columns
+        rmw_records.drop_columns(list(set(columns) - {'source_timestamp'}))
+        return rmw_records
 
     def _subscribe_records(
         self,
@@ -837,8 +878,9 @@ class RecordsProviderLttng(RuntimeDataProvider):
         if COLUMN_NAME.RCL_PUBLISH_TIMESTAMP in records.columns:
             columns.append(COLUMN_NAME.RCL_PUBLISH_TIMESTAMP)
         if COLUMN_NAME.DDS_WRITE_TIMESTAMP in records.columns:
-            columns.append(COLUMN_NAME.DDS_WRITE_TIMESTAMP)
-        columns.append(COLUMN_NAME.CALLBACK_START_TIMESTAMP)
+            columns.append(COLUMN_NAME.DDS_WRITE_TIMESTAMP)    
+        columns.append(COLUMN_NAME.SOURCE_TIMESTAMP)
+        # columns.append(COLUMN_NAME.CALLBACK_START_TIMESTAMP)
 
         self._format(records, columns)
 
@@ -1239,29 +1281,51 @@ class NodeRecordsUseLatestMessage:
 
     def to_records(self):
         assert self._node_path.subscription is not None and self._node_path.publisher is not None
+        take = False
 
         sub_records = self._provider.subscribe_records(self._node_path.subscription)
+        if len(sub_records) == 0:
+            take = True
+            logger.warn('this path container take implemantation. ')
+            sub_records = self._provider.subscription_take_records(self._node_path.subscription)
+            print(sub_records.to_dataframe().shape)
+            # sub_records.drop_columns([sub_records.columns[-1]])
         pub_records = self._provider.publish_records(self._node_path.publisher)
 
         columns = [
-            sub_records.columns[0],
+            *sub_records.columns,
             f'{self._node_path.publish_topic_name}/rclcpp_publish_timestamp',
         ]
 
-        pub_sub_records = merge_sequential(
-            left_records=sub_records,
-            right_records=pub_records,
-            left_stamp_key=sub_records.columns[0],
-            right_stamp_key=pub_records.columns[0],
-            join_left_key=None,
-            join_right_key=None,
-            columns=Columns.from_str(
-                sub_records.columns + pub_records.columns
-            ).column_names,
-            how='left_use_latest',
-        )
+        if take:
+            pub_sub_records = merge_sequential(
+                left_records=sub_records,
+                right_records=pub_records,
+                left_stamp_key='source_timestamp',
+                right_stamp_key=pub_records.columns[0],
+                join_left_key=None,
+                join_right_key=None,
+                columns=Columns.from_str(
+                    sub_records.columns + pub_records.columns
+                ).column_names,
+                how='left_use_latest',
+            )
+        else:
+            pub_sub_records = merge_sequential(
+                left_records=sub_records,
+                right_records=pub_records,
+                left_stamp_key=sub_records.columns[0],
+                right_stamp_key=pub_records.columns[0],
+                join_left_key=None,
+                join_right_key=None,
+                columns=Columns.from_str(
+                    sub_records.columns + pub_records.columns
+                ).column_names,
+                how='left_use_latest',
+            )
 
         drop_columns = list(set(pub_sub_records.columns) - set(columns))
+        drop_columns += [s for s in pub_sub_records.columns if s.endswith('callback_start')]
         pub_sub_records.drop_columns(drop_columns)
         pub_sub_records.reindex(columns)
         return pub_sub_records
@@ -1846,6 +1910,12 @@ class FilteredRecordsSource:
     def _grouped_sub_records(self) -> dict[int, RecordsInterface]:
         records = self._lttng.compose_subscribe_records()
         group = records.groupby([COLUMN_NAME.CALLBACK_OBJECT])
+        return self._expand_key_tuple(group)
+
+    @cached_property
+    def _grouped_rmw_records(self) -> dict[int, RecordsInterface]:
+        records = self._lttng.compose_rmw_take_records()
+        group = records.groupby([COLUMN_NAME.RMW_SUBSCRIPTION_HANDLE])
         return self._expand_key_tuple(group)
 
     @cached_property
