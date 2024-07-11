@@ -890,7 +890,7 @@ class RecordsProviderLttng(RuntimeDataProvider):
         if COLUMN_NAME.DDS_WRITE_TIMESTAMP in records.columns:
             columns.append(COLUMN_NAME.DDS_WRITE_TIMESTAMP)    
         columns.append(COLUMN_NAME.SOURCE_TIMESTAMP)
-        # columns.append(COLUMN_NAME.CALLBACK_START_TIMESTAMP)
+        columns.append(COLUMN_NAME.CALLBACK_START_TIMESTAMP)
 
         self._format(records, columns)
 

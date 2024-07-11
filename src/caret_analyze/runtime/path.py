@@ -143,29 +143,49 @@ class RecordsMerged:
         def _get_source_columns(records: RecordsInterface):
             return [column for column in records.columns if 'source_timestamp' in column]
 
-        def _get_merge_key(left_records: RecordsInterface, right_records: RecordsInterface):
-            # case: left=NodePath, right=Communication
-            if 'rclcpp_publish' in left_records.columns[-1] and \
-                'rclcpp_publish' in right_records.columns[0]:
-                assert left_records.columns[-1] == right_records.columns[0]
-                left_key = left_records.columns[-1]
-                right_key = right_records.columns[0]
-                return left_key, right_key
+        def _get_callback_start_columns(records: RecordsInterface):
+            return [column for column in records.columns if 'callback_start' in column]
 
-            # case: left=Communication, right=NodePath
-            else:
-                left_key = _get_source_columns(left_records)[-1]
-                right_key = _get_source_columns(right_records)[-1]
-                return left_key, right_key
-                    
         def _relate_to_take_impl(left_records: RecordsInterface):
             # callback_start_column = [column for column in left_records.columns if 'callback_start' in column][-1]
             if len(left_records) == left_records.to_dataframe()[left_records.columns[-1]].isna().sum():
                 return True
             return False
 
-                
-            
+        def _get_merge_key(left_records: RecordsInterface, right_records: RecordsInterface):
+            column_pair = None
+            # case: left=NodePath, right=Communication
+            if 'rclcpp_publish' in left_records.columns[-1] and \
+                'rclcpp_publish' in right_records.columns[0]:
+                assert left_records.columns[-1] == right_records.columns[0]
+                left_key = left_records.columns[-1]
+                right_key = right_records.columns[0]
+                column_pair = (left_key, right_key)
+
+            # case: left: Communication (take_impl)
+            elif _relate_to_take_impl(left_records):
+                left_key = _get_source_columns(left_records)[-1]
+                right_key = _get_source_columns(right_records)[-1]
+                left_records.drop_columns([_get_callback_start_columns(left_records)[-1]])
+                column_pair = (left_key, right_key)
+
+            else:
+                left_key_list = [column for column in left_records.columns if 'callback_start' in column]
+                right_key_list = [column for column in left_records.columns if 'callback_start' in column]
+
+                # not exist callack_start in column names
+                if len(left_key_list) == 0 or len(right_key_list)==0:
+                    left_key = _get_source_columns(left_records)[-1]
+                    right_key = _get_source_columns(right_records)[-1]
+                    column_pair = (left_key, right_key)
+                # case: left=Communication, right=NodePath
+                else:
+                    left_key = left_key_list[-1]
+                    right_key = right_key_list[-1]
+                    column_pair = (left_key, right_key)
+
+            print(f'column pair:{column_pair}')
+            return column_pair        
 
         for target_, target in zip(targets[:-1], targets[1:]):
             print(f'l_columns: {left_records.columns}')
@@ -219,7 +239,7 @@ class RecordsMerged:
                 )
             else:
                 left_key, right_key = _get_merge_key(left_records, right_records)
-                print(f'merge, l_key={left_key}, r_key={right_key}')
+                # print(f'merge, l_key={left_key}, r_key={right_key}')
                 left_records = merge(
                     left_records=left_records,
                     right_records=right_records,
@@ -238,11 +258,12 @@ class RecordsMerged:
             right_records.rename_columns(rename_rule)
             if left_records.columns[-1] != right_records.columns[0]:
                 raise InvalidRecordsError('left columns[-1] != right columns[0]')
+            left_key, right_key = _get_merge_key(left_records, right_records)
             left_records = merge(
                 left_records=left_records,
                 right_records=right_records,
-                join_left_key=left_records.columns[-1],
-                join_right_key=right_records.columns[0],
+                join_left_key=left_key,
+                join_right_key=right_key,
                 columns=Columns.from_str(
                     left_records.columns + right_records.columns
                 ).column_names,

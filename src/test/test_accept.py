@@ -12,7 +12,7 @@ def test_load():
     path_name = 'start_from_B_0'
 
     path = app.get_path(path_name)
-    path.includa_first_callback = True
-    path.includa_last_callback = True
+    path.include_first_callback = True
+    path.include_last_callback = True
     # Plot.create_message_flow_plot(path)
     path.to_dataframe()
