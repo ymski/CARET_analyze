@@ -81,6 +81,22 @@ class BokehStackedBar:
             color_selector.get_color()
         colors = [color_selector.get_color(y_label) for y_label in y_labels]
 
+        # 左端のカラムのタイムスタンプを確認し、時間逆転が発生しているデータを抽出
+        reversed_timestamp = list(set(target_objects.to_dataframe().values[:,0]) - set(data['start time']))
+
+        # source_data = data
+        for rev in reversed_timestamp:
+            # 時間逆転したstart timeを追加
+            data['start time'].append(rev)
+            # 時間順にソート
+            data['start time'].sort()
+            # 追加したデータのindexを取得
+            idx = data['start time'].index(rev)
+            for k in data.keys():
+                if k != 'start time':
+                    # start time以外のキーに関して、追加したデータに対応するインデックスにダミー情報を追加
+                    data[k].insert(idx, 0)
+
         source = StackedBarSource(data, y_labels, self._xaxis_type, x_label)
         # reverse the order of y_labels to reverse the order in which bars are stacked.
         stacked_bar = fig.vbar_stack(list(reversed(y_labels)), x='start time',
