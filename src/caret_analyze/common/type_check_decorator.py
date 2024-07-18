@@ -15,6 +15,7 @@ from __future__ import annotations
 
 from collections.abc import Collection, Sequence
 from functools import wraps
+import inspect
 from inspect import get_annotations, getfullargspec
 from logging import getLogger
 from re import findall
@@ -25,6 +26,7 @@ from ..exceptions import UnsupportedTypeError
 try:
     from pydantic import ValidationError
     from pydantic.deprecated.decorator import validate_arguments
+    from pydantic import validate_call
 
     def _get_given_arg(
         annotations: dict[str, Any],
@@ -234,7 +236,7 @@ try:
 
     def decorator(func):
         validate_arguments_wrapper = \
-            validate_arguments(config={'arbitrary_types_allowed': True})(func)
+            validate_call(config={'arbitrary_types_allowed': True})(func)
 
         @wraps(func)
         def _custom_wrapper(*args, **kwargs):
@@ -246,7 +248,11 @@ try:
 
                 if varargs_name is not None:
                     args = args[:arg_len] + _parse_collection_or_unpack(args[arg_len:])
-                return validate_arguments_wrapper(*args, **kwargs)
+                sig = inspect.signature(func)
+                bound_args = sig.bind(*args, **kwargs)
+                args_dict = bound_args.arguments
+                return validate_arguments_wrapper(**args_dict)
+                # return validate_arguments_wrapper(*args, **kwargs)
 
             except ValidationError as e:
                 loc_tuple = e.errors()[0]['loc']
@@ -254,6 +260,15 @@ try:
 
                 given_arg = _get_given_arg(annotations, args, kwargs, loc_tuple, varargs_name)
                 expected_types = _get_expected_types(loc_tuple, annotations)
+                ## modify loc_tup
+                thrown_in_varargs = loc_tuple[0] == varargs_name
+                idx = None
+                if thrown_in_varargs:
+                    for i, arg in enumerate(given_arg):
+                        if  arg.__class__.__name__ not in expected_types:
+                            idx = i
+                            loc_tuple = (loc_tuple[0], i)
+
                 given_arg_loc_str = _get_given_arg_loc_str(loc_tuple, given_arg)
                 given_arg_type = _get_given_arg_type(given_arg, loc_tuple)
 
