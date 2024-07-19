@@ -161,14 +161,15 @@ try:
                 '<ARGUMENT_NAME>'[KEY]
 
         """
+        if isinstance(given_arg, str):
+            loc_str = f"'{given_arg_loc[0]}'"
         # Iterable or dict type case
-        if isinstance(given_arg, Sequence) or isinstance(given_arg, dict):
+        elif isinstance(given_arg, Sequence) or isinstance(given_arg, dict):
             loc_str = f"'{given_arg_loc[0]}'[{given_arg_loc[1]}]"
         else:
             loc_str = f"'{given_arg_loc[0]}'"
 
         return loc_str
-
     def _get_given_arg_type(given_arg: Any, given_arg_loc: tuple) -> str:
         """
         Get given argument type.
@@ -200,7 +201,9 @@ try:
                 Class name input for argument <ARGUMENT_NAME>[<KEY>]
 
         """
-        if isinstance(given_arg, Sequence) or isinstance(given_arg, dict):
+        if isinstance(given_arg, str):
+            given_arg_type_str = f"'{given_arg.__class__.__name__}'"
+        elif isinstance(given_arg, Sequence) or isinstance(given_arg, dict):
             given_arg_type_str = f"'{given_arg[given_arg_loc[1]].__class__.__name__}'"
         else:
             given_arg_type_str = f"'{given_arg.__class__.__name__}'"
