@@ -390,7 +390,7 @@ class Lttng(InfraBase):
         self.data = data
         self._info = LttngInfo(data)
         self._source: RecordsSource = RecordsSource(data, self._info)
-        self._counter = EventCounter(data, validate=validate)
+        # self._counter = EventCounter(data, validate=validate)
         self.events = events
         self._begin = begin
         self._end = end

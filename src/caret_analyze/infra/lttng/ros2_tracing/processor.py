@@ -136,6 +136,9 @@ class Ros2Handler():
             'ros2:rclcpp_buffer_to_ipb',
             'ros2:rclcpp_ipb_to_subscription',
             'ros2:rclcpp_construct_ring_buffer',
+            'ros2:rclcpp_executor_wait_for_work',
+            'ros2:rclcpp_executor_get_next_ready',
+            'ros2:rclcpp_executor_execute',
         ]
 
         if include_wrapped_tracepoints:
@@ -324,6 +327,10 @@ class Ros2Handler():
         #  The iron trace points for measurements defined by ros2_tracing
         handler_map['ros2:rclcpp_ring_buffer_enqueue'] = self._handle_rclcpp_ring_buffer_enqueue
         handler_map['ros2:rclcpp_ring_buffer_dequeue'] = self._handle_rclcpp_ring_buffer_dequeue
+
+        handler_map['ros2:rclcpp_executor_wait_for_work'] = self._handle_rclcpp_executor_wait_for_work
+        handler_map['ros2:rclcpp_executor_get_next_ready'] = self._handle_rclcpp_executor_get_next_ready
+        handler_map['ros2:rclcpp_executor_execute'] = self._handle_rclcpp_executor_execute
 
         self.handler_map = handler_map
 
@@ -1102,3 +1109,29 @@ class Ros2Handler():
         timestamp = get_field(event, '_timestamp')
         sim_time = get_field(event, 'stamp')
         self.data.add_sim_time(timestamp, sim_time)
+
+    def _handle_rclcpp_executor_get_next_ready(
+        self,
+        event: dict,
+    ) -> None:
+        tid = get_field(event, '_vtid')
+        timestamp = get_field(event, '_timestamp')
+        self.data.add_executor_get_next_ready(tid, timestamp)
+
+    def _handle_rclcpp_executor_wait_for_work(
+        self,
+        event: dict,
+    ) -> None:
+        tid = get_field(event, '_vtid')
+        timestamp = get_field(event, '_timestamp')
+        timeout = get_field(event, 'timeout')
+        self.data.add_executor_wait_for_work(tid, timestamp, timeout)
+
+    def _handle_rclcpp_executor_execute(
+        self,
+        event: dict,
+    ) -> None:
+        tid = get_field(event, '_vtid')
+        timestamp = get_field(event, '_timestamp')
+        subscription_handle = get_field(event, 'handle')
+        self.data.add_executor_execute(tid, timestamp, subscription_handle)

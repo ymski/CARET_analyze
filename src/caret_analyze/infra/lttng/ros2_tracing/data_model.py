@@ -262,6 +262,54 @@ class Ros2DataModel():
                 ColumnValue('time_event_stamp'),
             ]
         )
+        self.executor_get_next_ready = RecordsFactory.create_instance(
+            None,
+            columns=[
+                ColumnValue('tid'),
+                ColumnValue('executor_get_next_ready_timestamp'),
+            ]
+        )
+        self.executor_wait_for_work = RecordsFactory.create_instance(
+            None,
+            columns=[
+                ColumnValue('tid'),
+                ColumnValue('executor_wait_for_work_timestamp'),
+                ColumnValue('timeout'),
+            ]
+        )
+        self.executor_execute = RecordsFactory.create_instance(
+            None,
+            columns=[
+                ColumnValue('tid'),
+                ColumnValue('executor_execute_timestamp'),
+                ColumnValue('subscription_handle'),
+            ]
+        )
+
+    def add_executor_get_next_ready(self, tid, timestamp) -> None:
+        record = {
+            'tid': tid,
+            'executor_get_next_ready_timestamp': timestamp,
+        }
+        self.executor_get_next_ready.append(record)
+
+    def add_executor_wait_for_work(self, tid, timestamp, timeout) -> None:
+        if timeout == -1:
+            timeout = 0
+        record = {
+            'tid': tid,
+            'executor_wait_for_work_timestamp': timestamp,
+            'timeout': timeout,
+        }
+        self.executor_wait_for_work.append(record)
+
+    def add_executor_execute(self, tid, timestamp, subscription_handle) -> None:
+        record = {
+            'tid': tid,
+            'executor_execute_timestamp': timestamp,
+            'subscription_handle': subscription_handle,
+        }
+        self.executor_execute.append(record)
 
     def add_context(self, pid, context_handle, timestamp) -> None:
         record = {
