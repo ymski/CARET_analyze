@@ -368,6 +368,8 @@ class Ros2Handler():
         handle = get_field(event, 'node_handle')
         timestamp = get_field(event, '_timestamp')
         tid = get_field(event, '_vtid')
+        pid = get_field(event, '_vpid')
+        
         rmw_handle = get_field(event, 'rmw_handle')
         name = get_field(event, 'node_name')
         namespace = get_field(event, 'namespace')
@@ -375,7 +377,7 @@ class Ros2Handler():
         handle = self._remapper.node_handle_remapper.register_and_get_object_id(handle, event)
         rmw_handle = \
             self._remapper.rmw_node_handle_remapper.register_and_get_object_id(rmw_handle, event)
-        self.data.add_node(tid, handle, timestamp, rmw_handle, name, namespace)
+        self.data.add_node(pid, tid, handle, timestamp, rmw_handle, name, namespace)
 
     def _handle_rcl_publisher_init(
         self,

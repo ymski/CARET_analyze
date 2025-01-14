@@ -33,7 +33,7 @@ class Ros2DataModel():
         self._contexts = TracePointIntermediateData(
             ['context_handle', 'timestamp', 'pid'])
         self._nodes = TracePointIntermediateData(
-            ['node_handle', 'timestamp', 'tid', 'rmw_handle', 'namespace', 'name'])
+            ['node_handle', 'timestamp', 'pid', 'tid', 'rmw_handle', 'namespace', 'name'])
         self._publishers = TracePointIntermediateData(
             ['publisher_handle', 'timestamp', 'node_handle', 'rmw_handle', 'topic_name', 'depth'])
         self._subscriptions = TracePointIntermediateData(
@@ -271,10 +271,11 @@ class Ros2DataModel():
         }
         self._contexts.append(record)
 
-    def add_node(self, tid, node_handle, timestamp, rmw_handle, name, namespace) -> None:
+    def add_node(self, pid, tid, node_handle, timestamp, rmw_handle, name, namespace) -> None:
         record = {
             'node_handle': node_handle,
             'timestamp': timestamp,
+            'pid': pid,
             'tid': tid,
             'rmw_handle': rmw_handle,
             'namespace': namespace,
