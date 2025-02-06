@@ -50,6 +50,8 @@ from ..value_objects import (CallbackGroupValue,
                              TimerValue, VariablePassingValue,
                              )
 
+import ray
+
 logger = getLogger(__name__)
 
 
@@ -1592,28 +1594,63 @@ class CallbackPathSearched():
         callbacks = node.callbacks
         paths: list[NodePathStruct] = []
 
+        @ray.remote
+        def ray_func(write_callback, read_callback, max_ignored_construction_order):
+            if max_callback_construction_order != 0:
+                if write_callback.construction_order > max_callback_construction_order or \
+                    read_callback.construction_order > max_callback_construction_order:
+                    skip_count += 1
+                    max_ignored_construction_order = max(
+                        max_ignored_construction_order,
+                        write_callback.construction_order
+                    )
+                    return
+            searched_paths = searcher.search(write_callback, read_callback, node)
+            for path in searched_paths:
+                msg = 'Path Added: '
+                msg += f'subscribe: {path.subscribe_topic_name}, '
+                msg += f'publish: {path.publish_topic_name}, '
+                msg += f'callbacks: {path.callback_names}'
+                logger.info(msg)
+            return searched_paths
+
+        prev_len = 0
+        if callbacks:
+            prev_len = len(callbacks)
+        callbacks = Util.filter_items(lambda x: x.construction_order <= max_callback_construction_order, callbacks)
+        print(f'node: {node.node_name}, cbs: {prev_len} -> {len(callbacks)}, max_construction_order: {max_callback_construction_order}')
         if callbacks is not None:
             skip_count = 0
             max_ignored_construction_order = 0
-            for write_callback, read_callback in product(callbacks, callbacks):
-                if max_callback_construction_order != 0:
-                    if write_callback.construction_order > max_callback_construction_order or \
-                       read_callback.construction_order > max_callback_construction_order:
-                        skip_count += 1
-                        max_ignored_construction_order = max(
-                            max_ignored_construction_order,
-                            write_callback.construction_order
-                        )
-                        continue
-                searched_paths = searcher.search(write_callback, read_callback, node)
-                for path in searched_paths:
-                    msg = 'Path Added: '
-                    msg += f'subscribe: {path.subscribe_topic_name}, '
-                    msg += f'publish: {path.publish_topic_name}, '
-                    msg += f'callbacks: {path.callback_names}'
-                    logger.info(msg)
-                paths += searched_paths
+            # for write_callback, read_callback in product(callbacks, callbacks):
+            #     cnt += 1
+            #     # print(cnt)
+            #     if max_callback_construction_order != 0:
+            #         if write_callback.construction_order > max_callback_construction_order or \
+            #            read_callback.construction_order > max_callback_construction_order:
+            #             skip_count += 1
+            #             max_ignored_construction_order = max(
+            #                 max_ignored_construction_order,
+            #                 write_callback.construction_order
+            #             )
+            #             continue
+            #     searched_paths = searcher.search(write_callback, read_callback, node)
+            #     for path in searched_paths:
+            #         msg = 'Path Added: '
+            #         msg += f'subscribe: {path.subscribe_topic_name}, '
+            #         msg += f'publish: {path.publish_topic_name}, '
+            #         msg += f'callbacks: {path.callback_names}'
+            #         logger.info(msg)
+            #     paths += searched_paths
 
+            results = [ray_func.remote(a, b, 0) for a, b in product(callbacks, callbacks)]
+
+            # 結果を取得
+            results = ray.get(results)
+            for res in results:
+                paths += res
+
+            # ray.shutdown()
             if skip_count:
                 logger.warn(
                     f'{node.node_name} '
