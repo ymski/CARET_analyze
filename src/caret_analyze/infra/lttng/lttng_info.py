@@ -37,6 +37,9 @@ from ...common import Util
 from ...exceptions import InvalidArgumentError
 from ...value_objects import (ExecutorValue, NodeValue, Qos,
                               ServiceValue, SubscriptionValue, TimerValue)
+from ...record.interface import RecordsInterface
+from ...record.record_factory import RecordsFactory
+from ...record.column import ColumnValue
 
 
 logger = getLogger(__name__)
@@ -46,6 +49,8 @@ class LttngInfo:
 
     def __init__(self, data: Ros2DataModel):
         self._formatted = DataFrameFormatted(data)
+        data.callback_start_instances = self.apply_reduce_tiemr_map(data.callback_start_instances.clone(), data)
+        data.callback_end_instances = self.apply_reduce_tiemr_map(data.callback_end_instances.clone(), data)
 
         # TODO(hsgwa): check rmw_impl for each process.
         self._rmw_implementation = data.rmw_impl.iat(0, 0) if len(data.rmw_impl) > 0 else ''
@@ -53,6 +58,17 @@ class LttngInfo:
 
         self._id_to_topic: dict[str, str] = {}
         self._id_to_service: dict[str, str] = {}
+
+    def apply_reduce_tiemr_map(self, instance, data) -> RecordsInterface:
+        original_columns = instance.columns
+        cb_map = self._formatted._create_timer_cb_map(data)
+        df = instance.to_dataframe()
+        df['callback_object'] = df['callback_object'].map(cb_map).fillna(df['callback_object']).astype('int')
+        # reconstruct records
+        return RecordsFactory._create_instance_dict(
+            df.to_dict(orient='records'),
+            [ColumnValue(s) for s in original_columns],
+        )
 
     def _get_timer_cbs_without_pub(self, node_id: str) -> list[TimerCallbackValueLttng]:
         timer_cb_cache_without_pub = self._load_timer_cbs_without_pub()
@@ -848,6 +864,20 @@ class DataFrameFormatted:
         self._tilde = self._build_tilde_publisher(data)
         self._tilde_sub_id_to_sub = self._build_tilde_sub_id(data, self._tilde_sub)
         self._timer_control = self._build_timer_control(data)
+        self.timer_callback_obj_map = self._create_timer_cb_map(data)
+
+        # reduce timer
+        self._timer_callbacks = self._create_reduce_timer_data(self._timer_callbacks)
+        # self._tim = self._create_reduce_timer_data(self._tim)
+
+    def apply_timer_cb_map_to_df(self, df, target_column='callback_object'):
+        df[target_column] = df[target_column] \
+            .map(self.timer_callback_obj_map).fillna(df[target_column]).astype('int')
+
+    def _create_reduce_timer_data(self, d: TracePointData):
+        input_df = d.df
+        self.apply_timer_cb_map_to_df(input_df)
+        return TracePointData(input_df)
 
     @cached_property
     def tilde_sub_id_map(self) -> dict[int, int]:
@@ -1339,6 +1369,57 @@ class DataFrameFormatted:
         callback_groups.drop_duplicate()
         return callback_groups
 
+    @lru_cache
+    def _create_timer_cb_map(
+        self,
+        data: Ros2DataModel,
+    ) -> TracePointData:
+        columns = [
+            'callback_id', 'callback_object', 'node_handle', 'timer_handle', 'callback_group_addr',
+            'period_ns', 'symbol', 'construction_order'
+        ]
+
+        def callback_id(row: pd.Series) -> str:
+            cb_object = row['callback_object']
+            return f'timer_callback_{cb_object}'
+        timers = data.timers.clone()
+        timers.reset_index()
+        timers.rename_column('period', 'period_ns')
+
+        merge_drop_columns = ['tid']
+        timer_node_links = data.timer_node_links.clone()
+        timer_node_links.reset_index()
+        timer_node_links.remove_column('timestamp')
+        merge(timers, timer_node_links, 'timer_handle', merge_drop_columns=merge_drop_columns)
+
+        callback_objects = data.callback_objects.clone()
+        callback_objects.reset_index()
+        callback_objects.rename_column('reference', 'timer_handle')
+        callback_objects.remove_column('timestamp')
+        merge(timers, callback_objects, 'timer_handle', merge_drop_columns=merge_drop_columns)
+
+        symbols = data.callback_symbols.clone()
+        symbols.reset_index()
+        symbols.remove_column('timestamp')
+        merge(timers, symbols, 'callback_object', merge_drop_columns=merge_drop_columns)
+
+        def reduce_dupliacted(df):
+            cvt = {}
+            for k, frame in df.groupby(['node_handle', 'symbol']):
+                callbacks = list(frame['callback_object'].values)
+                cvt[k] = callbacks
+            callback_obj_map = {}
+            for k,v in cvt.items():
+                if len(v) <= 1:
+                    continue
+                representative = v[0]
+                for cb in v[1:]:
+                    callback_obj_map[cb] = representative
+            return callback_obj_map
+
+        timer_duplicated_map = reduce_dupliacted(timers.df.copy())
+        return timer_duplicated_map
+
     @staticmethod
     def _build_timer_callbacks(
         data: Ros2DataModel,
@@ -1386,6 +1467,7 @@ class DataFrameFormatted:
         # In the case of runtime recording, there are cases where duplicates are recorded.
         # If duplicates are left, the instance cannot be uniquely identified and a warning will
         # be issued, so they should be deleted.
+        timers.filter_rows('construction_order', 0)
         timers.drop_duplicate()
 
         return timers

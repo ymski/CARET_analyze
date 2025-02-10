@@ -1592,6 +1592,12 @@ class CallbackPathSearched():
         callbacks = node.callbacks
         paths: list[NodePathStruct] = []
 
+        if callbacks:
+            callbacks = [cb for cb in callbacks if cb.construction_order <= 2]
+        print(f'node: {node.node_name}')
+        if callbacks:
+            print(f'    cbs: {len(callbacks)}')
+
         if callbacks is not None:
             skip_count = 0
             max_ignored_construction_order = 0
