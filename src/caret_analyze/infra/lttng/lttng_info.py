@@ -865,6 +865,8 @@ class DataFrameFormatted:
         self._tilde_sub_id_to_sub = self._build_tilde_sub_id(data, self._tilde_sub)
         self._timer_control = self._build_timer_control(data)
         self.timer_callback_obj_map = self._create_timer_cb_map(data)
+        self._tim.filter_rows('construction_order', 0)
+
 
         # reduce timer
         self._timer_callbacks = self._create_reduce_timer_data(self._timer_callbacks)
@@ -1467,7 +1469,7 @@ class DataFrameFormatted:
         # In the case of runtime recording, there are cases where duplicates are recorded.
         # If duplicates are left, the instance cannot be uniquely identified and a warning will
         # be issued, so they should be deleted.
-        timers.filter_rows('construction_order', 0)
+        # timers.filter_rows('construction_order', 0)
         timers.drop_duplicate()
 
         return timers
