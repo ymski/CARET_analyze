@@ -855,13 +855,17 @@ class LttngInfo:
         for _, row in tim.df.iterrows():
             if row['node_id'] != node_id:
                 continue
+            if row['callback_id'] is None or row['callback_id'] is pd.NA:
+                callback_id = None
+            else:
+                callback_id=row['callback_id']
 
             times_info.append(
                 TimerValue(
                     node_name=row['node_name'],
                     period=row['period'],
                     node_id=row['node_id'],
-                    callback_id=row['callback_id'],
+                    callback_id=callback_id,
                     construction_order=row['timer_construction_order']
                 )
             )
