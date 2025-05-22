@@ -635,9 +635,10 @@ class LttngInfo:
             callback_groups = self._formatted.callback_groups.clone()
             merge(concat, nodes, 'node_handle')
             merge(concat, callback_groups, 'callback_group_addr', how='left')
+            filtered_concat_df = concat.df[concat.df['node_id']==node_id]
 
             callback_groups_values: list[CallbackGroupValueLttng] = []
-            for _, group_df in concat.df.groupby('callback_group_addr'):
+            for _, group_df in filtered_concat_df.groupby('callback_group_addr'):
                 row = group_df.iloc[0, :]
                 node_id_ = row['node_id']
                 if node_id != node_id_:
