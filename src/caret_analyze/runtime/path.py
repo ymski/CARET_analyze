@@ -245,7 +245,7 @@ class RecordsMerged:
 
             # adjust the columns for the case that the message is not taken by callback
             if is_match_column(right_records.columns[0], 'source_timestamp'):
-                left_records.drop_columns([left_records.columns[-1]])
+                left_records.drop_columns([left_records.columns[-1]])   # take実装時にはcallback_startが余分にあるので削除
 
             if left_records.columns[-1] != right_records.columns[0]:
                 raise InvalidRecordsError('left columns[-1] != right columns[0]')
@@ -290,6 +290,11 @@ class RecordsMerged:
                     ).column_names,
                     how='left'
                 )
+
+        last_column_series = left_records.get_column_series(left_records.columns[-1])
+        is_empty = sum([_ is None for _ in last_column_series ]) == len(last_column_series)
+        if is_empty:
+            left_records.drop_columns([left_records.columns[-1]])
 
         if include_last_callback and isinstance(targets[-1], NodePath):
             if not is_match_column(left_records.columns[-1], 'source_timestamp'):
